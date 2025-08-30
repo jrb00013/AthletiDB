@@ -1,0 +1,24 @@
+# Cron Examples for Players Pipeline
+# Add these to your crontab: crontab -e
+
+# Daily player data refresh at 6 AM
+0 6 * * * cd /path/to/players-pipeline && python main.py --include-upsets
+
+# Weekly full refresh on Sundays at 2 AM
+0 2 * * 0 cd /path/to/players-pipeline && python main.py --include-upsets --show-stats
+
+# Upset tracking only, every 4 hours during game days
+0 */4 * * 1-5 cd /path/to/players-pipeline && python main.py --upsets-only
+
+# Specific league updates (NBA on weekdays, NFL on weekends)
+0 8 * * 1-5 cd /path/to/players-pipeline && python main.py --league nba
+0 9 * * 0,6 cd /path/to/players-pipeline && python main.py --league nfl
+
+# Monthly statistics report
+0 7 1 * * cd /path/to/players-pipeline && python main.py --upsets-only --show-stats > /var/log/upsets_monthly.log 2>&1
+
+# Notes:
+# - Replace /path/to/players-pipeline with your actual project path
+# - Ensure your virtual environment is activated or use full path to python
+# - Consider using absolute paths for production environments
+# - Add logging for monitoring and debugging

@@ -1,0 +1,7 @@
+requests>=2.32
+pandas>=2.2
+pydantic>=2.8
+SQLAlchemy>=2.0
+python-dotenv>=1.0
+PyYAML>=6.0
+click>=8.0

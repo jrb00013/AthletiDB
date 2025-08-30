@@ -1,0 +1,37 @@
+database_url: "sqlite:///players.db"
+csv_dir: "exports"
+
+leagues:
+  - nba
+  - nfl
+  - mlb
+  - nhl
+
+# seasons are provider-specific; leave blank for "current" where supported
+seasons:
+  nba: null
+  nfl: null
+  mlb: null
+  nhl: null
+
+# Upset tracking configuration
+upsets:
+  enabled: true
+  threshold: 0.3  # Win probability threshold for upset detection
+  min_odds: 2.0  # Minimum odds for something to be considered an upset
+  track_historical: true  # Store historical upset data
+  
+# League-specific upset definitions
+league_upsets:
+  nba:
+    point_spread_threshold: 8.0  # Point spread for upset consideration
+    underdog_win_threshold: 0.25  # Win probability threshold
+  nfl:
+    point_spread_threshold: 7.0
+    underdog_win_threshold: 0.30
+  mlb:
+    run_differential_threshold: 3.0
+    underdog_win_threshold: 0.35
+  nhl:
+    goal_differential_threshold: 2.0
+    underdog_win_threshold: 0.30
