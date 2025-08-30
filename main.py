@@ -38,6 +38,9 @@ from pipeline.utils import (
 from pipeline.normalize import detect_upset
 from pipeline.providers import thesportsdb
 
+# Load environment variables early
+load_dotenv()
+
 # Import legacy providers for backward compatibility
 try:
     from pipeline.providers import nba_balldontlie, nfl_sleeper, mlb_statsapi, nhl_api
@@ -350,9 +353,7 @@ def main(league, source, upsets_only, injuries_only, include_upsets,
         logging.getLogger().setLevel(logging.DEBUG)
         logger.debug("Verbose logging enabled")
     
-    # Load configuration
-    load_dotenv()
-    
+    # Check configuration file
     if not Path(config).exists():
         click.echo(f"Configuration file {config} not found!")
         sys.exit(1)

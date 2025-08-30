@@ -175,7 +175,12 @@ def get_engine(db_url: str) -> Engine:
     try:
         eng = create_engine(db_url, future=True)
         with eng.begin() as con:
-            con.exec_driver_sql(SCHEMA_SQL)
+            # Split schema into individual statements and execute each one
+            statements = SCHEMA_SQL.split(';')
+            for statement in statements:
+                statement = statement.strip()
+                if statement and not statement.startswith('--'):
+                    con.exec_driver_sql(statement)
         logger.info("Database schema initialized successfully")
         return eng
     except Exception as e:

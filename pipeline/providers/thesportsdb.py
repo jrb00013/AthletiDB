@@ -359,22 +359,29 @@ class TheSportsDBProvider:
             "last_reset": self.rate_limiter.last_reset.isoformat()
         }
 
-# Global provider instance
-thesportsdb_provider = TheSportsDBProvider()
+# Global provider instance (lazy initialization)
+_thesportsdb_provider = None
+
+def _get_provider():
+    """Get or create TheSportsDB provider instance."""
+    global _thesportsdb_provider
+    if _thesportsdb_provider is None:
+        _thesportsdb_provider = TheSportsDBProvider()
+    return _thesportsdb_provider
 
 # Convenience functions for external use
 def fetch_players(league: str, season: int = None) -> List[Dict[str, Any]]:
     """Fetch players from TheSportsDB."""
-    return thesportsdb_provider.fetch_players(league, season)
+    return _get_provider().fetch_players(league, season)
 
 def fetch_teams(league: str) -> List[Dict[str, Any]]:
     """Fetch teams from TheSportsDB."""
-    return thesportsdb_provider.fetch_teams(league)
+    return _get_provider().fetch_teams(league)
 
 def fetch_games(league: str, season: int) -> List[Dict[str, Any]]:
     """Fetch games from TheSportsDB."""
-    return thesportsdb_provider.fetch_games(league, season)
+    return _get_provider().fetch_games(league, season)
 
 def get_rate_limit_status() -> Dict[str, Any]:
     """Get TheSportsDB rate limit status."""
-    return thesportsdb_provider.get_rate_limit_status()
+    return _get_provider().get_rate_limit_status()

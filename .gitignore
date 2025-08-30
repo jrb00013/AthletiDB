@@ -2,3 +2,15 @@
 data/Baseball/*.csv
 data/Basketball/*.csv
 data/nfl/*.csv
+
+# Python virtual env
+.venv/
+
+# Python cache
+__pycache__/
+
+# Databases
+*.db
+
+# Logs
+*.log

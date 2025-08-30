@@ -2,66 +2,41 @@
 
 A comprehensive, production-ready sports data analysis platform that pulls data from multiple sources, tracks upsets, monitors injuries, analyzes team performance, and provides deep insights across NBA, NFL, MLB, and NHL.
 
-## ✨ **New in v2.0 - Major Enhancements**
+## **New in v2.0 - Major Enhancements**
 
-### 🚀 **Multi-Source Data Architecture**
+### **Multi-Source Data Architecture**
 - **TheSportsDB API**: Live, up-to-date data with rate limiting
 - **NFLverse Git Submodule**: Comprehensive NFL play-by-play data
 - **Historical CSV Support**: Local data for offline analysis
 - **Legacy Provider Support**: Backward compatibility with existing APIs
 
-### 🏥 **Injury Tracking & Analysis**
+### **Injury Tracking & Analysis**
 - Real-time injury monitoring across all leagues
 - Severity classification (questionable, doubtful, out, IR)
 - Historical injury patterns and recovery analysis
 - Impact assessment on team performance
 
-### 📊 **Enhanced Team Analytics**
+### **Enhanced Team Analytics**
 - Comprehensive team records and standings
 - Performance trend analysis
 - Strength/weakness identification
 - Playoff and championship tracking
 
-### 🔄 **Advanced Rate Limiting & Caching**
+### **Advanced Rate Limiting & Caching**
 - Configurable API rate limits per source
 - Intelligent caching with expiration
 - Request queuing and burst protection
 - Local data prioritization for historical analysis
 
-### 🎯 **Enhanced Upset Detection**
+### **Enhanced Upset Detection**
 - Multi-factor upset analysis (spread, odds, performance, historical)
 - League-specific upset definitions
 - Magnitude scoring and ranking
 - Context-aware detection (weather, venue, attendance)
 
-## 🏗️ **Architecture Overview**
+## **Architecture Overview**
 
-```
-Enhanced Sports Data Pipeline
-├── 📊 Data Sources
-│   ├── TheSportsDB API (Live)
-│   ├── NFLverse Git Submodule (NFL)
-│   ├── Historical CSV Files
-│   └── Legacy APIs (Backward Compatible)
-├── 🗄️ Enhanced Database
-│   ├── Players (Comprehensive profiles)
-│   ├── Upsets (Multi-factor analysis)
-│   ├── Injuries (Real-time tracking)
-│   ├── Team Records (Performance analytics)
-│   ├── Games (Detailed statistics)
-│   └── Team Analysis (Strengths/weaknesses)
-├── 🔧 Core Pipeline
-│   ├── Rate Limiting & Caching
-│   ├── Data Validation & Cleaning
-│   ├── Multi-format Export
-│   └── Performance Optimization
-└── 🖥️ User Interfaces
-    ├── Enhanced CLI (Organized commands)
-    ├── Web Dashboard (Coming Soon)
-    └── API Endpoints (Future)
-```
-
-## 🚀 **Quick Start**
+## **Quick Start**
 
 ### 1. **Setup Environment**
 ```bash
@@ -108,9 +83,9 @@ python main.py --show-status
 python ui/cli.py upsets list --league nfl --format table
 ```
 
-## 🎮 **Enhanced CLI Commands**
+## **Enhanced CLI Commands**
 
-### **🏃‍♂️ Player Management**
+### **Player Management**
 ```bash
 # Fetch players from specific source
 python ui/cli.py players fetch --league nfl --source live
@@ -122,7 +97,7 @@ python ui/cli.py players export --league nba --format excel
 python ui/cli.py players list --team "Lakers" --active-only
 ```
 
-### **📊 Upset Analysis**
+### ** Upset Analysis**
 ```bash
 # List recent upsets
 python ui/cli.py upsets list --league nfl --limit 20
@@ -134,7 +109,7 @@ python ui/cli.py upsets stats --league nba
 python ui/cli.py upsets export --format json
 ```
 
-### **🏥 Injury Tracking**
+### **Injury Tracking**
 ```bash
 # Monitor active injuries
 python ui/cli.py injuries list --league nfl --severity out
@@ -146,7 +121,7 @@ python ui/cli.py injuries list --team "Patriots"
 python ui/cli.py injuries export --format csv
 ```
 
-### **🏆 Team Analytics**
+### **Team Analytics**
 ```bash
 # View team records
 python ui/cli.py teams records --league nba --season 2024
@@ -158,7 +133,7 @@ python ui/cli.py teams analyze --league mlb --team "Yankees"
 python ui/cli.py teams export --format excel
 ```
 
-### **📈 Data Analysis**
+### **Data Analysis**
 ```bash
 # Trend analysis
 python ui/cli.py analysis trends --league nfl --season 2024
@@ -199,7 +174,7 @@ performance:
   memory_limit_mb: 500
 ```
 
-## 📊 **Data Outputs**
+## **Data Outputs**
 
 ### **Database Tables**
 - **`players`**: Enhanced player profiles with draft info, experience
@@ -221,7 +196,7 @@ performance:
 - Schema version tracking
 - Source attribution and lineage
 
-## 🌐 **API Integration**
+## **API Integration**
 
 ### **TheSportsDB API**
 - **Authentication**: API key required
@@ -235,7 +210,7 @@ performance:
 - **Format**: RDS files with Python/R support
 - **Updates**: Automatic via GitHub releases
 
-## 📈 **Performance & Scalability**
+## **Performance & Scalability**
 
 ### **Optimization Features**
 - **Intelligent Caching**: API response caching with expiration
@@ -249,7 +224,7 @@ performance:
 - **API Call Counts**: Usage analytics
 - **Error Rates**: Quality monitoring
 
-## 🧪 **Testing & Quality**
+## **Testing & Quality**
 
 ### **Test Coverage**
 ```bash
@@ -270,7 +245,7 @@ python -m pytest tests/test_analysis.py
 - **Relationship Validation**: Foreign key integrity
 - **Format Validation**: Date, number, text validation
 
-## 🚀 **Deployment & Production**
+## **Deployment & Production**
 
 ### **Environment Setup**
 ```bash
@@ -293,7 +268,7 @@ export CACHE_DURATION="7200"
 0 2 * * 0 cd /path/to/pipeline && python main.py --show-stats
 ```
 
-## 🤝 **Contributing**
+## **Contributing**
 
 We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
@@ -304,24 +279,24 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed gu
 - **Performance**: Optimization and scaling
 - **Documentation**: Examples and tutorials
 
-## 📚 **Documentation & Resources**
+##**Documentation & Resources**
 
 - **API Reference**: [API.md](docs/API.md)
 - **Data Schema**: [Data.md](docs/Data.md)
 - **Examples**: [Examples.md](docs/Examples.md)
 - **Troubleshooting**: [Troubleshooting.md](docs/Troubleshooting.md)
 
-## 🆘 **Support & Community**
+## **Support & Community**
 
 - **Issues**: [GitHub Issues](https://github.com/yourusername/sports-data-pipeline/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/yourusername/sports-data-pipeline/discussions)
 - **Wiki**: [Project Wiki](https://github.com/yourusername/sports-data-pipeline/wiki)
 
-## 📄 **License**
+## **License**
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 **Acknowledgments**
+## **Acknowledgments**
 
 - **TheSportsDB**: Comprehensive sports data API
 - **NFLverse**: NFL play-by-play data and analysis
@@ -329,6 +304,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**🏈🏀⚾🏒 Transform your sports data analysis with the most comprehensive pipeline available!**
+**🏈🏀⚾🏒**
 
-*Built with ❤️ for sports analytics enthusiasts and professionals.*
+*Built with for sports analytics enthusiasts.*

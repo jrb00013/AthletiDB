@@ -1,3 +1,4 @@
 [submodule "data/nfl"]
 	path = data/nfl
 	url = https://github.com/nflverse/nflverse-pbp.git
+	ignore = all
