@@ -71,6 +71,8 @@ data_sources:
 ### 3. **Run the Pipeline**
 ```bash
 # Basic run
+cd AthletiDB
+source .venv/bin/activate
 python main.py
 
 # With specific options
