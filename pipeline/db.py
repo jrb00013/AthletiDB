@@ -174,13 +174,70 @@ def get_engine(db_url: str) -> Engine:
     """Create and configure database engine with enhanced schema."""
     try:
         eng = create_engine(db_url, future=True)
+        
+        # Parse SQL statements properly, separating comments from SQL
+        raw_statements = SCHEMA_SQL.split(';')
+        statements = []
+        for raw_stmt in raw_statements:
+            # Split by newlines and filter out comment lines
+            lines = raw_stmt.strip().split('\n')
+            sql_lines = []
+            for line in lines:
+                line = line.strip()
+                if line and not line.startswith('--'):
+                    # Remove inline comments (everything after --)
+                    if '--' in line:
+                        line = line.split('--')[0].strip()
+                    if line:
+                        sql_lines.append(line)
+            
+            if sql_lines:
+                # Reconstruct the SQL statement
+                sql_statement = ' '.join(sql_lines)
+                if sql_statement:
+                    statements.append(sql_statement)
+        
+        logger.info(f"Total SQL statements found: {len(statements)}")
+        
+        # Create tables first
         with eng.begin() as con:
-            # Split schema into individual statements and execute each one
-            statements = SCHEMA_SQL.split(';')
-            for statement in statements:
+            table_count = 0
+            for i, statement in enumerate(statements):
+                logger.info(f"Statement {i} (len={len(statement)}): '{statement[:100]}...'")
+                if statement.upper().startswith('CREATE TABLE'):
+                    try:
+                        con.exec_driver_sql(statement)
+                        table_count += 1
+                        table_name = statement.split('(')[0].split()[-1]
+                        logger.info(f"Created table #{table_count}: {table_name}")
+                    except Exception as e:
+                        logger.error(f"Table creation failed: {e}")
+                        logger.error(f"Failed statement: {statement}")
+                        raise
+        
+        logger.info(f"Successfully created {table_count} tables")
+        
+        # Force commit and wait a moment for tables to be available
+        eng.dispose()
+        
+        # Now create indexes
+        with eng.begin() as con:
+            index_count = 0
+            for i, statement in enumerate(statements):
                 statement = statement.strip()
                 if statement and not statement.startswith('--'):
-                    con.exec_driver_sql(statement)
+                    if statement.upper().startswith('CREATE INDEX'):
+                        try:
+                            con.exec_driver_sql(statement)
+                            index_count += 1
+                            index_name = statement.split('ON')[0].split()[-1]
+                            logger.info(f"Created index #{index_count}: {index_name}")
+                        except Exception as e:
+                            logger.error(f"Index creation failed: {e}")
+                            logger.error(f"Failed statement: {statement}")
+                            raise
+                    
+        logger.info(f"Successfully created {index_count} indexes")
         logger.info("Database schema initialized successfully")
         return eng
     except Exception as e:

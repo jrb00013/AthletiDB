@@ -61,7 +61,7 @@ class TheSportsDBProvider:
             logger.error(f"Unexpected error: {e}")
             return None
     
-    @cached("thesportsdb", lambda self, league: f"players_{league}")
+    @cached("thesportsdb", lambda self, league, season=None: f"players_{league}_{season or 'current'}")
     def fetch_players(self, league: str, season: int = None) -> List[Dict[str, Any]]:
         """Fetch players for a specific league."""
         logger.info(f"Fetching {league.upper()} players from TheSportsDB...")
@@ -79,8 +79,9 @@ class TheSportsDBProvider:
             logger.error(f"Unsupported league: {league}")
             return []
         
-        endpoint = f"search_all_players.php"
-        params = {"l": api_league}
+        # Try different endpoints for TheSportsDB
+        endpoint = "searchplayers.php"  # Changed from search_all_players.php
+        params = {"t": api_league}  # Changed from "l" to "t" for team/league
         
         if season:
             params["s"] = season

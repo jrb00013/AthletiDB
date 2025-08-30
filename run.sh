@@ -1,0 +1,1 @@
+rm -f sports_data.db && python3 main.py --show-status
