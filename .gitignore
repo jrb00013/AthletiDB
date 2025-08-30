@@ -1,3 +1,4 @@
 # Ignore all CSVs in Baseball and Basketball that are huge
 data/Baseball/*.csv
 data/Basketball/*.csv
+data/nfl/*.csv
