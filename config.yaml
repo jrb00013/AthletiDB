@@ -1,37 +1,114 @@
-database_url: "sqlite:///players.db"
-csv_dir: "exports"
+# Enhanced Sports Data Pipeline Configuration
 
+# Database and Export Settings
+database_url: "sqlite:///sports_data.db"
+csv_dir: "exports"
+cache_dir: "cache"
+
+# Supported Leagues
 leagues:
-  - nba
   - nfl
+  - nba
   - mlb
   - nhl
 
-# seasons are provider-specific; leave blank for "current" where supported
+# Seasons configuration (null = current season)
 seasons:
-  nba: null
   nfl: null
+  nba: null
   mlb: null
   nhl: null
+
+# Data Sources Configuration
+data_sources:
+  nfl:
+    primary: "nflverse"  # Git submodule
+    live: "thesportsdb"   # Live API
+    historical: "nflverse"
+  nba:
+    primary: "historical_csv"
+    live: "thesportsdb"
+    historical: "local_csv"
+  mlb:
+    primary: "historical_csv"
+    live: "thesportsdb"
+    historical: "local_csv"
+  nhl:
+    primary: "historical_csv"
+    live: "thesportsdb"
+    historical: "local_csv"
 
 # Upset tracking configuration
 upsets:
   enabled: true
-  threshold: 0.3  # Win probability threshold for upset detection
-  min_odds: 2.0  # Minimum odds for something to be considered an upset
-  track_historical: true  # Store historical upset data
+  threshold: 0.3  # Win probability threshold
+  min_odds: 2.0  # Minimum odds for upset
+  track_historical: true
   
 # League-specific upset definitions
 league_upsets:
-  nba:
-    point_spread_threshold: 8.0  # Point spread for upset consideration
-    underdog_win_threshold: 0.25  # Win probability threshold
   nfl:
     point_spread_threshold: 7.0
     underdog_win_threshold: 0.30
+    upset_types: ["point_spread", "odds", "performance"]
+  nba:
+    point_spread_threshold: 8.0
+    underdog_win_threshold: 0.25
+    upset_types: ["point_spread", "odds", "performance"]
   mlb:
     run_differential_threshold: 3.0
     underdog_win_threshold: 0.35
+    upset_types: ["odds", "performance", "historical"]
   nhl:
     goal_differential_threshold: 2.0
     underdog_win_threshold: 0.30
+    upset_types: ["odds", "performance", "historical"]
+
+# Injury tracking configuration
+injuries:
+  enabled: true
+  track_historical: true
+  severity_levels: ["questionable", "doubtful", "out", "ir"]
+  update_frequency: "daily"
+
+# Team records and statistics
+team_records:
+  enabled: true
+  track_seasons: true
+  track_playoffs: true
+  highlight_strengths: true
+  weakness_analysis: true
+
+# Rate limiting configuration
+rate_limiting:
+  thesportsdb:
+    requests_per_hour: 1800  # 30 requests per minute (free tier)
+    burst_limit: 30
+    cooldown_period: 3600
+  nflverse:
+    requests_per_hour: 1000  # Local data, higher limit
+    burst_limit: 100
+    cooldown_period: 0
+
+# Data quality and validation
+data_quality:
+  validate_player_ids: true
+  standardize_team_names: true
+  handle_missing_data: true
+  duplicate_detection: true
+  data_cleaning: true
+
+# Performance settings
+performance:
+  batch_size: 1000
+  max_concurrent_requests: 5
+  cache_duration: 3600
+  enable_compression: true
+  memory_limit_mb: 500
+
+# Export and reporting
+export:
+  formats: ["csv", "json", "excel"]
+  include_metadata: true
+  compression: true
+  batch_export: true

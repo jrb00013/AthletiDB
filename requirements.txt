@@ -1,3 +1,4 @@
+# Core dependencies
 requests>=2.32
 pandas>=2.2
 pydantic>=2.8
@@ -5,3 +6,36 @@ SQLAlchemy>=2.0
 python-dotenv>=1.0
 PyYAML>=6.0
 click>=8.0
+
+# Enhanced features
+openpyxl>=3.1  # Excel export support
+
+# Data processing and validation
+numpy>=1.24  # Numerical operations
+jsonschema>=4.0  # JSON validation
+
+# API and web
+aiohttp>=3.8  # Async HTTP requests (optional)
+httpx>=0.24  # Modern HTTP client (optional)
+
+# Database enhancements
+psycopg2-binary>=2.9  # PostgreSQL support (optional)
+redis>=4.5  # Redis caching (optional)
+
+# Testing and development
+pytest>=7.0  # Testing framework
+pytest-cov>=4.0  # Coverage testing
+pytest-asyncio>=0.21  # Async testing support
+
+# Logging and monitoring
+structlog>=23.0  # Structured logging
+prometheus-client>=0.17  # Metrics collection (optional)
+
+# Data analysis
+scipy>=1.10  # Scientific computing (optional)
+matplotlib>=3.6  # Plotting (optional)
+seaborn>=0.12  # Statistical visualization (optional)
+
+# Performance and optimization
+ujson>=5.7  # Fast JSON parsing (optional)
+orjson>=3.8  # Fastest JSON library (optional)
