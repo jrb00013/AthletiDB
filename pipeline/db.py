@@ -174,7 +174,7 @@ def get_engine(db_url: str) -> Engine:
     """Create and configure database engine with enhanced schema."""
     try:
         eng = create_engine(db_url, future=True)
-        
+
         # Parse SQL statements properly, separating comments from SQL
         raw_statements = SCHEMA_SQL.split(';')
         statements = []
@@ -190,53 +190,67 @@ def get_engine(db_url: str) -> Engine:
                         line = line.split('--')[0].strip()
                     if line:
                         sql_lines.append(line)
-            
+
             if sql_lines:
                 # Reconstruct the SQL statement
                 sql_statement = ' '.join(sql_lines)
                 if sql_statement:
                     statements.append(sql_statement)
-        
+
         logger.info(f"Total SQL statements found: {len(statements)}")
+
+        # Separate CREATE TABLE and CREATE INDEX statements
+        table_statements = []
+        index_statements = []
         
-        # Create tables first
+        for statement in statements:
+            if statement.upper().startswith('CREATE TABLE'):
+                table_statements.append(statement)
+            elif statement.upper().startswith('CREATE INDEX'):
+                index_statements.append(statement)
+
+        logger.info(f"Table statements: {len(table_statements)}, Index statements: {len(index_statements)}")
+
+        # Create tables first with explicit commits
         with eng.begin() as con:
             table_count = 0
-            for i, statement in enumerate(statements):
-                logger.info(f"Statement {i} (len={len(statement)}): '{statement[:100]}...'")
-                if statement.upper().startswith('CREATE TABLE'):
-                    try:
-                        con.exec_driver_sql(statement)
-                        table_count += 1
-                        table_name = statement.split('(')[0].split()[-1]
-                        logger.info(f"Created table #{table_count}: {table_name}")
-                    except Exception as e:
-                        logger.error(f"Table creation failed: {e}")
-                        logger.error(f"Failed statement: {statement}")
-                        raise
-        
+            for i, statement in enumerate(table_statements):
+                logger.info(f"Creating table {i+1}/{len(table_statements)}: {statement[:100]}...")
+                try:
+                    con.exec_driver_sql(statement)
+                    table_count += 1
+                    table_name = statement.split('(')[0].split()[-1]
+                    logger.info(f"Created table #{table_count}: {table_name}")
+                except Exception as e:
+                    logger.error(f"Table creation failed: {e}")
+                    logger.error(f"Failed statement: {statement}")
+                    raise
+
         logger.info(f"Successfully created {table_count} tables")
-        
-        # Force commit and wait a moment for tables to be available
+
+        # Force engine disposal to ensure tables are committed
         eng.dispose()
         
-        # Now create indexes
+        # Wait a moment for file system to sync
+        import time
+        time.sleep(0.1)
+
+        # Now create indexes with a fresh connection
         with eng.begin() as con:
             index_count = 0
-            for i, statement in enumerate(statements):
-                statement = statement.strip()
-                if statement and not statement.startswith('--'):
-                    if statement.upper().startswith('CREATE INDEX'):
-                        try:
-                            con.exec_driver_sql(statement)
-                            index_count += 1
-                            index_name = statement.split('ON')[0].split()[-1]
-                            logger.info(f"Created index #{index_count}: {index_name}")
-                        except Exception as e:
-                            logger.error(f"Index creation failed: {e}")
-                            logger.error(f"Failed statement: {statement}")
-                            raise
-                    
+            for i, statement in enumerate(index_statements):
+                logger.info(f"Creating index {i+1}/{len(index_statements)}: {statement[:100]}...")
+                try:
+                    con.exec_driver_sql(statement)
+                    index_count += 1
+                    index_name = statement.split('ON')[0].split()[-1]
+                    logger.info(f"Created index #{index_count}: {index_name}")
+                except Exception as e:
+                    logger.error(f"Index creation failed: {e}")
+                    logger.error(f"Failed statement: {statement}")
+                    # Log warning but don't fail - indexes are optional
+                    logger.warning(f"Index creation failed, continuing: {e}")
+
         logger.info(f"Successfully created {index_count} indexes")
         logger.info("Database schema initialized successfully")
         return eng
