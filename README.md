@@ -1,4 +1,4 @@
-# Sports Data Pipeline
+# AthletiDB
 
 A comprehensive, enterprise-grade sports data analysis and management system designed for sports analysts, researchers, and enthusiasts. This pipeline provides robust data collection, normalization, analysis, and export capabilities across multiple sports leagues.
 
@@ -228,29 +228,6 @@ The pipeline uses a comprehensive database schema with the following tables:
 - **player_stats**: Individual player statistics
 - **team_analysis**: Team strengths and weaknesses
 
-## Architecture
-
-### Core Components
-
-```
-sports-data-pipeline/
-├── pipeline/                 # Core pipeline logic
-│   ├── db.py               # Database operations
-│   ├── normalize.py        # Data normalization
-│   ├── utils.py            # Utility functions
-│   └── providers/          # Data source providers
-├── ui/                     # User interface
-│   └── cli.py             # Command-line interface
-├── scripts/                # Utility scripts
-│   └── setup.py           # Setup and installation
-├── tests/                  # Test suite
-│   └── test_suite.py      # Comprehensive tests
-├── data/                   # Data storage
-├── exports/                # Export output
-├── logs/                   # Log files
-└── cache/                  # Cache storage
-```
-
 ### Provider System
 
 The pipeline uses a modular provider system for data sources:
@@ -464,27 +441,14 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Support
 
-### Getting Help
-
-- **Documentation**: This README and inline code documentation
-- **Issues**: GitHub Issues for bug reports and feature requests
-- **Discussions**: GitHub Discussions for questions and ideas
-- **Wiki**: Additional documentation and examples
-
-### Community
-
-- **Contributors**: See [CONTRIBUTORS.md](CONTRIBUTORS.md)
-- **Changelog**: See [CHANGELOG.md](CHANGELOG.md)
-- **Roadmap**: See [ROADMAP.md](ROADMAP.md)
 
 ## Acknowledgments
 
 - **TheSportsDB**: For providing comprehensive sports data APIs
 - **NFLVerse**: For NFL play-by-play data
-- **Open Source Community**: For the excellent tools and libraries used
+
 
 ---
 
-**Sports Data Pipeline** - Empowering sports analysis through comprehensive data management and intelligent insights.
+**AthletiDB** - Empowering sports analysts since 2025.
