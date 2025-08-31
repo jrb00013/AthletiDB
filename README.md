@@ -65,20 +65,18 @@ A comprehensive, enterprise-grade sports data analysis and management system des
 
 ### Command Line Interface
 
-The pipeline provides a comprehensive CLI with multiple command groups:
-
-#### Data Fetching
+The pipeline provides a comprehensive CLI with multiple command grou#### Data Fetching
 ```bash
-# Fetch NFL players from live API
+# Fetch NFL players 
 python ui/cli.py fetch players --league nfl --source live
 
 # Fetch NBA teams
 python ui/cli.py fetch teams --league nba --source live
 
-# Fetch MLB games for specific season
+# Fetch MLB games 
 python ui/cli.py fetch games --league mlb --season 2024 --source live
 
-# Fetch injury data
+# Fetch injury data    (replace nfl with mlb or nba)
 python ui/cli.py fetch injuries --league nfl --team "New England Patriots"
 ```
 
