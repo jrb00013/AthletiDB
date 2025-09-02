@@ -36,13 +36,14 @@ def fetch_nfl_players():
         return []
 
 def fetch_nba_players():
-    """Fetch NBA players using balldontlie.io."""
+    """Fetch NBA players using fallback provider."""
     print("\n=== Fetching NBA Players ===")
     
     try:
-        from pipeline.providers.nba_balldontlie import fetch
+        # Try the fallback provider first
+        from pipeline.providers.nba_fallback import fetch
         
-        print("Fetching NBA players from balldontlie.io...")
+        print("Fetching NBA players using fallback provider...")
         players = fetch()
         print(f"✅ Successfully fetched {len(players)} NBA players")
         
