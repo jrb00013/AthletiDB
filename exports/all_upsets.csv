@@ -1,0 +1,4 @@
+id,league,game_date,home_team,away_team,home_score,away_score,winner,loser,upset_type,upset_reason,point_spread,odds_before_game,upset_magnitude,game_quarter,time_remaining,weather_conditions,attendance,tv_network,created_at
+1,NBA,2025-09-01,Lakers,Warriors,98,112,Warriors,Lakers,point_spread,Warriors won with 2.8 odds,8.5,2.8,22.5,,,,,,2025-09-02T02:25:59Z
+2,NFL,2025-09-01,Patriots,Jets,17,24,Jets,Patriots,point_spread,Jets won with 3.2 odds,10.0,3.2,17.0,,,,,,2025-09-02T02:25:59Z
+3,MLB,2025-09-01,Yankees,Orioles,2,8,Orioles,Yankees,odds,Orioles won with 4.1 odds,,4.1,4.1,,,,,,2025-09-02T02:25:59Z

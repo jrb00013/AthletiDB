@@ -1,0 +1,31 @@
+{
+  "export_date": "2025-09-01T22:25:59.712370",
+  "league": "all",
+  "upset_count": 3,
+  "upset_types": {
+    "point_spread": 2,
+    "odds": 1
+  },
+  "columns": [
+    "id",
+    "league",
+    "game_date",
+    "home_team",
+    "away_team",
+    "home_score",
+    "away_score",
+    "winner",
+    "loser",
+    "upset_type",
+    "upset_reason",
+    "point_spread",
+    "odds_before_game",
+    "upset_magnitude",
+    "game_quarter",
+    "time_remaining",
+    "weather_conditions",
+    "attendance",
+    "tv_network",
+    "created_at"
+  ]
+}
