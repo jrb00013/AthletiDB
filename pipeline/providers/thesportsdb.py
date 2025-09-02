@@ -80,15 +80,25 @@ class TheSportsDBProvider:
             return []
         
         # Try different endpoints for TheSportsDB
-        endpoint = "searchplayers.php"  # Changed from search_all_players.php
-        params = {"t": api_league}  # Changed from "l" to "t" for team/league
+        endpoints_to_try = [
+            ("searchplayers.php", {"t": api_league}),
+            ("search_all_players.php", {"l": api_league}),
+            ("players_all.php", {"l": api_league}),
+            ("searchplayers.php", {"l": api_league})
+        ]
         
-        if season:
-            params["s"] = season
+        data = None
+        for endpoint, params in endpoints_to_try:
+            if season:
+                params["s"] = season
+            
+            data = self._make_request(endpoint, params)
+            if data and "player" in data:
+                logger.info(f"Successfully used endpoint: {endpoint}")
+                break
         
-        data = self._make_request(endpoint, params)
         if not data or "player" not in data:
-            logger.warning(f"No player data found for {league}")
+            logger.warning(f"No player data found for {league} after trying all endpoints")
             return []
         
         players = []
@@ -359,6 +369,42 @@ class TheSportsDBProvider:
             "can_make_request": self.rate_limiter.can_make_request(),
             "last_reset": self.rate_limiter.last_reset.isoformat()
         }
+    
+    def test_api_connectivity(self) -> Dict[str, Any]:
+        """Test API connectivity and return status."""
+        logger.info("Testing TheSportsDB API connectivity...")
+        
+        test_results = {}
+        
+        # Test basic connectivity
+        try:
+            response = requests.get(f"{self.base_url}/searchplayers.php", 
+                                  params={"apikey": self.api_key, "t": "Basketball_nba"}, 
+                                  timeout=10)
+            test_results["status_code"] = response.status_code
+            test_results["response_time"] = response.elapsed.total_seconds()
+            
+            if response.status_code == 200:
+                data = response.json()
+                test_results["success"] = True
+                test_results["has_data"] = "player" in data
+                test_results["player_count"] = len(data.get("player", [])) if "player" in data else 0
+                test_results["message"] = "API is working correctly"
+            else:
+                test_results["success"] = False
+                test_results["message"] = f"API returned status {response.status_code}"
+                
+        except Exception as e:
+            test_results["success"] = False
+            test_results["message"] = f"Connection failed: {str(e)}"
+            test_results["error"] = str(e)
+        
+        # Test rate limiter
+        test_results["rate_limiter_working"] = self.rate_limiter.can_make_request()
+        test_results["api_key_present"] = bool(self.api_key)
+        
+        logger.info(f"API connectivity test results: {test_results}")
+        return test_results
 
 # Global provider instance (lazy initialization)
 _thesportsdb_provider = None
@@ -386,3 +432,7 @@ def fetch_games(league: str, season: int) -> List[Dict[str, Any]]:
 def get_rate_limit_status() -> Dict[str, Any]:
     """Get TheSportsDB rate limit status."""
     return _get_provider().get_rate_limit_status()
+
+def test_api_connectivity() -> Dict[str, Any]:
+    """Test TheSportsDB API connectivity."""
+    return _get_provider().test_api_connectivity()

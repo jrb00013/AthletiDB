@@ -1,9 +1,12 @@
 import requests
+import logging
 from datetime import datetime
 from typing import List, Dict, Any
 from ..normalize import Player, to_row
 from ..utils import paginate, polite_delay
 import os
+
+logger = logging.getLogger(__name__)
 
 BASE = "https://api.balldontlie.io/v1"  # public; for higher limits, use API key header
 
@@ -19,8 +22,11 @@ def fetch(season: int | None = None) -> List[Dict[str, Any]]:
         # Add API key if available
         headers = {}
         api_key = os.getenv("BALDONTLIE_API_KEY")
-        if api_key:
+        if api_key and api_key != "your_balldontlie_api_key_here":
             headers["Authorization"] = api_key
+        else:
+            # Try without API key (public access)
+            logger.warning("No valid BALDONTLIE_API_KEY found, trying public access")
         
         r = requests.get(f"{BASE}/players", params=params, headers=headers, timeout=30)
         r.raise_for_status()

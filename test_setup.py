@@ -291,7 +291,7 @@ def main():
         print("2. Try: python main.py --league nba")
         print("3. Test upsets: python example_upsets.py")
     else:
-        print(" [ERRORSome tests failed. Please check the errors above.")
+        print(" [ERROR] Some tests failed. Please check the errors above.")
         print("\nCommon solutions:")
         print("1. Install missing dependencies: pip install -r requirements.txt")
         print("2. Check file permissions and paths")
