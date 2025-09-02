@@ -57,8 +57,19 @@ class TestDatabase(unittest.TestCase):
                 'last_name': 'Doe',
                 'league': 'NFL',
                 'team': 'Test Team',
+                'team_id': 'TEST001',
                 'position': 'QB',
+                'jersey': '12',
+                'nationality': 'US',
+                'birthdate': '1990-01-01',
+                'height_cm': 180.0,
+                'weight_kg': 85.0,
                 'active': 1,
+                'rookie_year': 2010,
+                'experience_years': 5,
+                'college': 'Test University',
+                'draft_round': 1,
+                'draft_pick': 10,
                 'updated_at': '2024-01-01T00:00:00Z',
                 'created_at': '2024-01-01T00:00:00Z'
             }
@@ -92,7 +103,7 @@ class TestDatabase(unittest.TestCase):
         
         # Verify upset was inserted
         with self.engine.connect() as conn:
-            result = conn.execute("SELECT * FROM upsets WHERE winner = 'Team B'")
+            result = conn.execute(text("SELECT * FROM upsets WHERE winner = 'Team B'"))
             upset = result.fetchone()
             self.assertIsNotNone(upset)
             self.assertEqual(upset.upset_type, "point_spread")
@@ -304,8 +315,19 @@ class TestIntegration(unittest.TestCase):
                 'last_name': 'Test',
                 'league': 'NFL',
                 'team': 'Test Team',
+                'team_id': 'INT001',
                 'position': 'QB',
+                'jersey': '99',
+                'nationality': 'US',
+                'birthdate': '1995-01-01',
+                'height_cm': 185.0,
+                'weight_kg': 90.0,
                 'active': 1,
+                'rookie_year': 2015,
+                'experience_years': 3,
+                'college': 'Integration University',
+                'draft_round': 2,
+                'draft_pick': 45,
                 'updated_at': '2024-01-01T00:00:00Z',
                 'created_at': '2024-01-01T00:00:00Z'
             }
@@ -330,22 +352,22 @@ class TestIntegration(unittest.TestCase):
         # 3. Verify data integrity
         with self.engine.connect() as conn:
             # Check players
-            player_result = conn.execute("SELECT COUNT(*) FROM players")
+            player_result = conn.execute(text("SELECT COUNT(*) FROM players"))
             player_count = player_result.fetchone()[0]
             self.assertEqual(player_count, 1)
             
             # Check upsets
-            upset_result = conn.execute("SELECT COUNT(*) FROM upsets")
+            upset_result = conn.execute(text("SELECT COUNT(*) FROM upsets"))
             upset_count = upset_result.fetchone()[0]
             self.assertEqual(upset_count, 1)
             
             # Check relationships
-            player_upset_result = conn.execute("""
+            player_upset_result = conn.execute(text("""
                 SELECT p.full_name, u.upset_type 
                 FROM players p 
                 JOIN upsets u ON p.league = u.league
                 WHERE p.id = 'int_test_1'
-            """)
+            """))
             relationship = player_upset_result.fetchone()
             self.assertIsNotNone(relationship)
 

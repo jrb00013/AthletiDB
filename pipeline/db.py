@@ -228,14 +228,16 @@ def get_engine(db_url: str) -> Engine:
 
         logger.info(f"Successfully created {table_count} tables")
 
-        # Force engine disposal to ensure tables are committed
-        eng.dispose()
-        
-        # Wait a moment for file system to sync
-        import time
-        time.sleep(0.1)
+        # For in-memory databases, don't dispose the engine
+        if ":memory:" not in db_url:
+            # Force engine disposal to ensure tables are committed
+            eng.dispose()
+            
+            # Wait a moment for file system to sync
+            import time
+            time.sleep(0.1)
 
-        # Now create indexes with a fresh connection
+        # Now create indexes with the same connection
         with eng.begin() as con:
             index_count = 0
             for i, statement in enumerate(index_statements):

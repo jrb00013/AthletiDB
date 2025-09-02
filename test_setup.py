@@ -14,51 +14,51 @@ def test_imports():
     
     try:
         import requests
-        print("  ✓ requests")
+        print("   [PASSED]  requests")
     except ImportError:
-        print("  ✗ requests - install with: pip install requests")
+        print("  [FAILED] requests - install with: pip install requests")
         return False
     
     try:
         import pandas
-        print("  ✓ pandas")
+        print("   [PASSED]  pandas")
     except ImportError:
-        print("  ✗ pandas - install with: pip install pandas")
+        print("  [FAILED] pandas - install with: pip install pandas")
         return False
     
     try:
         import pydantic
-        print("  ✓ pydantic")
+        print("   [PASSED]  pydantic")
     except ImportError:
-        print("  ✗ pydantic - install with: pip install pydantic")
+        print("  [FAILED] pydantic - install with: pip install pydantic")
         return False
     
     try:
         import sqlalchemy
-        print("  ✓ sqlalchemy")
+        print("   [PASSED]  sqlalchemy")
     except ImportError:
-        print("  ✗ sqlalchemy - install with: pip install sqlalchemy")
+        print("  [FAILED] sqlalchemy - install with: pip install sqlalchemy")
         return False
     
     try:
         import yaml
-        print("  ✓ PyYAML")
+        print("   [PASSED]  PyYAML")
     except ImportError:
-        print("  ✗ PyYAML - install with: pip install PyYAML")
+        print("  [FAILED] PyYAML - install with: pip install PyYAML")
         return False
     
     try:
         import click
-        print("  ✓ click")
+        print("   [PASSED]  click")
     except ImportError:
-        print("  ✗ click - install with: pip install click")
+        print("  [FAILED] click - install with: pip install click")
         return False
     
     try:
         import dotenv
-        print("  ✓ python-dotenv")
+        print("   [PASSED]  python-dotenv")
     except ImportError:
-        print("  ✗ python-dotenv - install with: pip install python-dotenv")
+        print("  [FAILED] python-dotenv - install with: pip install python-dotenv")
         return False
     
     return True
@@ -69,51 +69,51 @@ def test_pipeline_modules():
     
     try:
         from pipeline import db
-        print("  ✓ pipeline.db")
+        print("   [PASSED]  pipeline.db")
     except ImportError as e:
-        print(f"  ✗ pipeline.db: {e}")
+        print(f"  [FAILED] pipeline.db: {e}")
         return False
     
     try:
         from pipeline import normalize
-        print("  ✓ pipeline.normalize")
+        print("   [PASSED]  pipeline.normalize")
     except ImportError as e:
-        print(f"  ✗ pipeline.normalize: {e}")
+        print(f"  [FAILED] pipeline.normalize: {e}")
         return False
     
     try:
         from pipeline import utils
-        print("  ✓ pipeline.utils")
+        print("   [PASSED]  pipeline.utils")
     except ImportError as e:
-        print(f"  ✗ pipeline.utils: {e}")
+        print(f"  [FAILED] pipeline.utils: {e}")
         return False
     
     try:
         from pipeline.providers import nba_balldontlie
-        print("  ✓ pipeline.providers.nba_balldontlie")
+        print("   [PASSED]  pipeline.providers.nba_balldontlie")
     except ImportError as e:
-        print(f"  ✗ pipeline.providers.nba_balldontlie: {e}")
+        print(f"  [FAILED] pipeline.providers.nba_balldontlie: {e}")
         return False
     
     try:
         from pipeline.providers import nfl_sleeper
-        print("  ✓ pipeline.providers.nfl_sleeper")
+        print("   [PASSED]  pipeline.providers.nfl_sleeper")
     except ImportError as e:
-        print(f"  ✗ pipeline.providers.nfl_sleeper: {e}")
+        print(f"  [FAILED] pipeline.providers.nfl_sleeper: {e}")
         return False
     
     try:
         from pipeline.providers import mlb_statsapi
-        print("  ✓ pipeline.providers.mlb_statsapi")
+        print("  [PASSED]  pipeline.providers.mlb_statsapi")
     except ImportError as e:
-        print(f"  ✗ pipeline.providers.mlb_statsapi: {e}")
+        print(f"  [FAILED] pipeline.providers.mlb_statsapi: {e}")
         return False
     
     try:
         from pipeline.providers import nhl_api
-        print("  ✓ pipeline.providers.nhl_api")
+        print("   [PASSED]  pipeline.providers.nhl_api")
     except ImportError as e:
-        print(f"  ✗ pipeline.providers.nhl_api: {e}")
+        print(f"  [FAILED] pipeline.providers.nhl_api: {e}")
         return False
     
     return True
@@ -124,7 +124,7 @@ def test_configuration():
     
     config_file = Path("config.yaml")
     if not config_file.exists():
-        print("  ✗ config.yaml not found")
+        print("  [FAILED] config.yaml not found")
         return False
     
     try:
@@ -135,18 +135,18 @@ def test_configuration():
         required_keys = ['database_url', 'csv_dir', 'leagues', 'seasons', 'upsets']
         for key in required_keys:
             if key not in config:
-                print(f"  ✗ Missing config key: {key}")
+                print(f"  [FAILED] Missing config key: {key}")
                 return False
         
-        print("  ✓ config.yaml loaded successfully")
-        print(f"  ✓ Database: {config['database_url']}")
-        print(f"  ✓ CSV Directory: {config['csv_dir']}")
-        print(f"  ✓ Leagues: {', '.join(config['leagues'])}")
+        print("   [PASSED]  config.yaml loaded successfully")
+        print(f"   [PASSED]  Database: {config['database_url']}")
+        print(f"   [PASSED]  CSV Directory: {config['csv_dir']}")
+        print(f"   [PASSED] Leagues: {', '.join(config['leagues'])}")
         
         return True
         
     except Exception as e:
-        print(f"  ✗ Error loading config: {e}")
+        print(f"  [FAILED] Error loading config: {e}")
         return False
 
 def test_database_connection():
@@ -166,14 +166,30 @@ def test_database_connection():
         test_player = {
             "id": "test_1",
             "full_name": "Test Player",
+            "first_name": "Test",
+            "last_name": "Player",
             "league": "TEST",
+            "team": "Test Team",
+            "team_id": "TEST001",
+            "position": "QB",
+            "jersey": "12",
+            "nationality": "US",
+            "birthdate": "1990-01-01",
+            "height_cm": 180.0,
+            "weight_kg": 85.0,
             "active": 1,
-            "updated_at": "2024-01-01T00:00:00Z"
+            "rookie_year": 2010,
+            "experience_years": 5,
+            "college": "Test University",
+            "draft_round": 1,
+            "draft_pick": 10,
+            "updated_at": "2024-01-01T00:00:00Z",
+            "created_at": "2024-01-01T00:00:00Z"
         }
         
         upsert_players(engine, [test_player])
-        print("  ✓ Database schema created")
-        print("  ✓ Player upsert test passed")
+        print("   [PASSED]  Database schema created")
+        print("   [PASSED]  Player upsert test passed")
         
         # Test upset insert
         test_upset = {
@@ -189,12 +205,12 @@ def test_database_connection():
         }
         
         insert_upset(engine, test_upset)
-        print("  ✓ Upset insert test passed")
+        print("  [PASSED] Upset insert test passed")
         
         return True
         
     except Exception as e:
-        print(f"  ✗ Database test failed: {e}")
+        print(f"  [FAILED] Database test failed: {e}")
         return False
 
 def test_provider_connectivity():
@@ -208,36 +224,36 @@ def test_provider_connectivity():
         try:
             response = requests.get("https://api.balldontlie.io/v1/players?per_page=1", timeout=10)
             if response.status_code == 200:
-                print("  ✓ NBA API (balldontlie.io) - accessible")
+                print("  [PASSED]NBA API (balldontlie.io) - accessible")
             else:
-                print(f"  ⚠ NBA API returned status {response.status_code}")
+                print(f"  [WARNING]   NBA API returned status {response.status_code}")
         except Exception as e:
-            print(f"  ⚠ NBA API test failed: {e}")
+            print(f"   [FAILURE]  NBA API test failed: {e}")
         
         # Test NFL provider (Sleeper)
         try:
             response = requests.get("https://api.sleeper.app/v1/players/nfl", timeout=30)
             if response.status_code == 200:
-                print("  ✓ NFL API (Sleeper) - accessible")
+                print("  [PASSED] NFL API (Sleeper) - accessible")
             else:
-                print(f"  ⚠ NFL API returned status {response.status_code}")
+                print(f"  [WARNING] NFL API returned status {response.status_code}")
         except Exception as e:
-            print(f"  ⚠ NFL API test failed: {e}")
+            print(f"   [FAILURE] NFL API test failed: {e}")
         
         # Test MLB provider
         try:
             response = requests.get("https://statsapi.mlb.com/api/v1/teams?sportId=1", timeout=10)
             if response.status_code == 200:
-                print("  ✓ MLB API - accessible")
+                print("  [PASSED] MLB API - accessible")
             else:
-                print(f"  ⚠ MLB API returned status {response.status_code}")
+                print(f"   [WARNING]  MLB API returned status {response.status_code}")
         except Exception as e:
-            print(f"  ⚠ MLB API test failed: {e}")
+            print(f"   [FAILURE]  MLB API test failed: {e}")
         
         return True
         
     except Exception as e:
-        print(f"  ✗ Provider connectivity test failed: {e}")
+        print(f"  [FAILED] Provider connectivity test failed: {e}")
         return False
 
 def main():
@@ -269,13 +285,13 @@ def main():
     print(f"Test Results: {passed}/{total} tests passed")
     
     if passed == total:
-        print("🎉 All tests passed! Your setup is ready.")
+        print("[PASSED] All tests passed! Your setup is ready.")
         print("\nNext steps:")
         print("1. Run: python main.py --help")
         print("2. Try: python main.py --league nba")
         print("3. Test upsets: python example_upsets.py")
     else:
-        print("❌ Some tests failed. Please check the errors above.")
+        print(" [ERRORSome tests failed. Please check the errors above.")
         print("\nCommon solutions:")
         print("1. Install missing dependencies: pip install -r requirements.txt")
         print("2. Check file permissions and paths")
