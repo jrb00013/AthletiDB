@@ -1,7 +1,5 @@
 # AthletiDB
 
-A comprehensive, enterprise-grade sports data analysis and management system designed for sports analysts, researchers, and enthusiasts. This pipeline provides robust data collection, normalization, analysis, and export capabilities across multiple sports leagues.
-
 ## Features
 
 ### Core Functionality
@@ -452,3 +450,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 **AthletiDB** - Empowering sports analysts since 2025.
+
