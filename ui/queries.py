@@ -239,3 +239,136 @@ def get_injury_summary_text(injury: Dict[str, Any]) -> str:
         return f"{player} from {team} is doubtful - might not play this week."
     else:
         return f"{player} ({team}) is {status} - we'll have to wait and see."
+
+
+def get_team_injuries(engine: Engine, team: str, league: str = None) -> List[Dict[str, Any]]:
+    """Get all injuries for a specific team."""
+    try:
+        with engine.connect() as con:
+            if league:
+                result = con.execute(text("""
+                    SELECT i.*, p.full_name, p.position
+                    FROM injuries i
+                    JOIN players p ON i.player_id = p.id
+                    WHERE i.team = :team AND i.league = :league
+                    AND i.status IN ('out', 'doubtful', 'questionable', 'ir')
+                    ORDER BY i.injury_date DESC
+                """), {"team": team, "league": league})
+            else:
+                result = con.execute(text("""
+                    SELECT i.*, p.full_name, p.position
+                    FROM injuries i
+                    JOIN players p ON i.player_id = p.id
+                    WHERE i.team = :team
+                    AND i.status IN ('out', 'doubtful', 'questionable', 'ir')
+                    ORDER BY i.injury_date DESC
+                """), {"team": team})
+            return [dict(row._mapping) for row in result]
+    except:
+        return []
+
+
+def get_upset_by_team(engine: Engine, team: str) -> List[Dict[str, Any]]:
+    """Get all upsets involving a specific team."""
+    try:
+        with engine.connect() as con:
+            result = con.execute(text("""
+                SELECT * FROM upsets 
+                WHERE winner = :team OR loser = :team
+                ORDER BY game_date DESC
+                LIMIT 20
+            """), {"team": team})
+            return [dict(row._mapping) for row in result]
+    except:
+        return []
+
+
+def get_most_upset_teams(engine: Engine, league: str = None, limit: int = 10) -> List[Dict[str, Any]]:
+    """Get teams with the most upset victories."""
+    try:
+        with engine.connect() as con:
+            if league:
+                result = con.execute(text("""
+                    SELECT winner as team, COUNT(*) as upset_count
+                    FROM upsets
+                    WHERE league = :league
+                    GROUP BY winner
+                    ORDER BY upset_count DESC
+                    LIMIT :limit
+                """), {"league": league, "limit": limit})
+            else:
+                result = con.execute(text("""
+                    SELECT winner as team, league, COUNT(*) as upset_count
+                    FROM upsets
+                    GROUP BY winner, league
+                    ORDER BY upset_count DESC
+                    LIMIT :limit
+                """), {"limit": limit})
+            return [dict(row._mapping) for row in result]
+    except:
+        return []
+
+
+def get_recent_games_for_team(engine: Engine, team: str, league: str = None, limit: int = 10) -> List[Dict[str, Any]]:
+    """Get recent games for a specific team."""
+    try:
+        with engine.connect() as con:
+            if league:
+                result = con.execute(text("""
+                    SELECT * FROM games
+                    WHERE (home_team = :team OR away_team = :team)
+                    AND league = :league
+                    ORDER BY game_date DESC
+                    LIMIT :limit
+                """), {"team": team, "league": league, "limit": limit})
+            else:
+                result = con.execute(text("""
+                    SELECT * FROM games
+                    WHERE home_team = :team OR away_team = :team
+                    ORDER BY game_date DESC
+                    LIMIT :limit
+                """), {"team": team, "limit": limit})
+            return [dict(row._mapping) for row in result]
+    except:
+        return []
+
+
+def get_league_stat_leaders(engine: Engine, league: str, category: str = "win_pct") -> Dict[str, Any]:
+    """Get stat leaders for a league."""
+    valid_categories = {
+        "win_pct": "win_percentage",
+        "wins": "wins", 
+        "points_for": "points_for",
+        "point_differential": "point_differential"
+    }
+    
+    col = valid_categories.get(category, "win_percentage")
+    
+    try:
+        with engine.connect() as con:
+            result = con.execute(text(f"""
+                SELECT team, wins, losses, win_percentage, points_for, points_against, point_differential
+                FROM team_records
+                WHERE league = :league
+                ORDER BY {col} DESC
+                LIMIT 5
+            """), {"league": league})
+            
+            leaders = [dict(row._mapping) for row in result]
+            
+            if not leaders:
+                return {"category": category, "leaders": []}
+            
+            top = leaders[0]
+            
+            return {
+                "category": category,
+                "leaders": leaders,
+                "leader": {
+                    "team": top.get('team'),
+                    "value": top.get(col, 0),
+                    "say_this": f"{top.get('team')} leads the {league.upper()} in {category.replace('_', ' ')} with {top.get(col, 0)}!"
+                }
+            }
+    except Exception as e:
+        return {"category": category, "leaders": [], "error": str(e)}
