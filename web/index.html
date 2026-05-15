@@ -595,6 +595,8 @@
                     <button class="league-tab" onclick="showAllLeagues()" style="background: var(--secondary);">🌐 All</button>
                     <button class="league-tab" onclick="showInsights()" style="background: var(--accent);">💡 Insights</button>
                     <button class="league-tab" onclick="showQuickStats()" style="background: var(--primary);">📊 Stats</button>
+                    <button class="league-tab" onclick="showAroundTheHorn()" style="background: var(--danger);">📰 News</button>
+                    <button class="league-tab" onclick="showHeadlines()" style="background: #ec4899;">📰 Headlines</button>
                 </div>
             </div>
         </div>
@@ -972,6 +974,64 @@
             }
             
             html += `</div>`;
+            modalBody.innerHTML = html;
+            document.getElementById('modal').style.display = 'block';
+        }
+
+        async function showAroundTheHorn() {
+            const data = await fetchData('/api/around-the-horn');
+            const modalBody = document.getElementById('modal-body');
+            
+            let html = `<h2 style="color: var(--primary); margin-bottom: 15px;">${data.title}</h2>`;
+            html += `<p style="color: var(--text-secondary); margin-bottom: 20px;">${data.tip}</p>`;
+            
+            if (data.news && data.news.length > 0) {
+                data.news.forEach(item => {
+                    const typeColor = item.type === 'upset' ? 'yellow' : item.type === 'injury' ? 'red' : 'cyan';
+                    html += `
+                        <div style="background: var(--bg-hover); padding: 15px; border-radius: 10px; margin-bottom: 12px;">
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                <span class="talking-league ${item.league.toLowerCase()}">${item.league}</span>
+                                <span style="color: var(--${typeColor}); font-size: 20px;">${item.type === 'upset' ? '⚡' : '🏥'}</span>
+                            </div>
+                            <div style="font-weight: 600; margin-bottom: 8px;">${item.headline}</div>
+                            <div style="background: rgba(99, 102, 241, 0.15); padding: 10px; border-radius: 6px; font-style: italic;">
+                                💬 ${item.script}
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                html += `<p>No news yet. Run the pipeline first!</p>`;
+            }
+            
+            modalBody.innerHTML = html;
+            document.getElementById('modal').style.display = 'block';
+        }
+
+        async function showHeadlines() {
+            const data = await fetchData(`/api/league/${currentLeague}/headlines`);
+            const modalBody = document.getElementById('modal-body');
+            
+            let html = `<h2 style="color: var(--primary); margin-bottom: 20px;">📰 ${data.league} Headlines</h2>`;
+            html += `<p style="color: var(--text-secondary); margin-bottom: 20px;">${data.tip}</p>`;
+            
+            if (data.headlines && data.headlines.length > 0) {
+                data.headlines.forEach(h => {
+                    const priorityColor = h.priority === 'high' ? 'var(--danger)' : 'var(--secondary)';
+                    html += `
+                        <div style="background: var(--bg-hover); padding: 15px; border-radius: 10px; margin-bottom: 12px; border-left: 3px solid ${priorityColor};">
+                            <div style="font-weight: 600; font-size: 18px; margin-bottom: 10px;">${h.headline}</div>
+                            <div style="background: linear-gradient(90deg, rgba(99, 102, 241, 0.2), transparent); padding: 10px; border-radius: 6px;">
+                                ${h.script}
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                html += `<p>No headlines yet. Run the pipeline first!</p>`;
+            }
+            
             modalBody.innerHTML = html;
             document.getElementById('modal').style.display = 'block';
         }
