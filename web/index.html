@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AthletiDB - Sports Conversation Companion</title>
+    <title>AthletiDB - Sports Made Simple</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -60,6 +60,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         .logo {
@@ -93,14 +95,15 @@
         .league-tabs {
             display: flex;
             gap: 8px;
+            flex-wrap: wrap;
         }
 
         .league-tab {
-            padding: 10px 20px;
+            padding: 10px 16px;
             border: none;
             border-radius: 8px;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 13px;
             cursor: pointer;
             transition: all 0.2s;
             background: rgba(255,255,255,0.1);
@@ -109,6 +112,7 @@
 
         .league-tab:hover {
             background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
         }
 
         .league-tab.active {
@@ -116,19 +120,14 @@
             color: var(--primary);
         }
 
-        .league-tab.nfl { border-bottom: 3px solid var(--nfl-red); }
-        .league-tab.nba { border-bottom: 3px solid var(--nba-orange); }
-        .league-tab.mlb { border-bottom: 3px solid var(--mlb-blue); }
-        .league-tab.nhl { border-bottom: 3px solid var(--nhl-purple); }
-
         .hero {
-            padding: 40px 0;
+            padding: 60px 0;
             text-align: center;
-            background: linear-gradient(180deg, rgba(99, 102, 241, 0.1) 0%, transparent 100%);
+            background: linear-gradient(180deg, rgba(99, 102, 241, 0.15) 0%, transparent 100%);
         }
 
         .hero h2 {
-            font-size: 48px;
+            font-size: 56px;
             font-weight: 800;
             margin-bottom: 16px;
             background: linear-gradient(90deg, #fff 0%, #94a3b8 100%);
@@ -141,7 +140,47 @@
             font-size: 20px;
             color: var(--text-secondary);
             max-width: 600px;
-            margin: 0 auto;
+            margin: 0 auto 24px;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .quick-btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .quick-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .quick-btn.primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .quick-btn.secondary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .quick-btn.accent {
+            background: var(--accent);
+            color: #000;
         }
 
         .grid {
@@ -432,6 +471,15 @@
             .summary-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
+            
+            .hero h2 {
+                font-size: 36px;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
         }
 
         .summary-stat {
@@ -563,19 +611,101 @@
             transform: translateY(-2px);
         }
 
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                gap: 20px;
-            }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            overflow-y: auto;
+        }
 
-            .hero h2 {
-                font-size: 32px;
-            }
+        .modal-content {
+            background: var(--bg-card);
+            margin: 3% auto;
+            padding: 30px;
+            border-radius: 16px;
+            max-width: 700px;
+            border: 1px solid var(--primary);
+        }
 
-            .grid {
-                grid-template-columns: 1fr;
-            }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover { color: white; }
+
+        .stat-card {
+            background: var(--bg-hover);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 10px;
+        }
+
+        .stat-value { font-size: 36px; font-weight: 800; color: var(--primary); }
+        .stat-label { color: var(--text-muted); margin-top: 5px; }
+
+        .action-btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .action-btn:hover { background: #059669; }
+
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: rgba(16, 185, 129, 0.2);
+            border-radius: 20px;
+            font-size: 12px;
+            color: var(--secondary);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--secondary);
+            border-radius: 50%;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            z-index: 2000;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
     </style>
 </head>
@@ -586,17 +716,21 @@
                 <div class="logo">
                     <div class="logo-icon">🏆</div>
                     <h1>Athleti<span>DB</span></h1>
+                    <span class="live-indicator">
+                        <span class="pulse-dot"></span>
+                        LIVE
+                    </span>
                 </div>
                 <div class="league-tabs">
-                    <button class="league-tab nfl active" data-league="nfl">NFL</button>
-                    <button class="league-tab nba" data-league="nba">NBA</button>
-                    <button class="league-tab mlb" data-league="mlb">MLB</button>
-                    <button class="league-tab nhl" data-league="nhl">NHL</button>
+                    <button class="league-tab nfl active" data-league="nfl">🏈 NFL</button>
+                    <button class="league-tab nba" data-league="nba">🏀 NBA</button>
+                    <button class="league-tab mlb" data-league="mlb">⚾ MLB</button>
+                    <button class="league-tab nhl" data-league="nhl">🏒 NHL</button>
                     <button class="league-tab" onclick="showAllLeagues()" style="background: var(--secondary);">🌐 All</button>
-                    <button class="league-tab" onclick="showInsights()" style="background: var(--accent);">💡 Insights</button>
-                    <button class="league-tab" onclick="showQuickStats()" style="background: var(--primary);">📊 Stats</button>
-                    <button class="league-tab" onclick="showAroundTheHorn()" style="background: var(--danger);">📰 News</button>
-                    <button class="league-tab" onclick="showHeadlines()" style="background: #ec4899;">📰 Headlines</button>
+                    <button class="league-tab" onclick="showInsights()" style="background: var(--accent);">💡</button>
+                    <button class="league-tab" onclick="showQuickStats()" style="background: var(--primary);">📊</button>
+                    <button class="league-tab" onclick="showAroundTheHorn()" style="background: var(--danger);">📰</button>
+                    <button class="league-tab" onclick="showHeadlines()" style="background: #ec4899;">📣</button>
                 </div>
             </div>
         </div>
@@ -605,7 +739,12 @@
     <section class="hero">
         <div class="container">
             <h2>Sports Made Simple</h2>
-            <p>Your conversation companion. Never be stumped by sports talk again.</p>
+            <p>Never be stumped by sports talk again. Get instant conversation-ready insights.</p>
+            <div class="quick-actions">
+                <button class="quick-btn primary" onclick="showQuickStats()">📊 Quick Stats</button>
+                <button class="quick-btn secondary" onclick="showTalkingPoints()">💬 Talking Points</button>
+                <button class="quick-btn accent" onclick="loadData()">🔄 Refresh</button>
+            </div>
         </div>
     </section>
 
@@ -695,53 +834,7 @@
         </div>
     </div>
 
-    <style>
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-        }
-        .modal-content {
-            background: var(--bg-card);
-            margin: 5% auto;
-            padding: 30px;
-            border-radius: 16px;
-            max-width: 600px;
-            border: 1px solid var(--primary);
-        }
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .close:hover { color: white; }
-        .stat-card {
-            background: var(--bg-hover);
-            padding: 20px;
-            border-radius: 12px;
-            text-align: center;
-            margin: 10px;
-        }
-        .stat-value { font-size: 36px; font-weight: 800; color: var(--primary); }
-        .stat-label { color: var(--text-muted); margin-top: 5px; }
-        .action-btn {
-            background: var(--secondary);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-        .action-btn:hover { background: #059669; }
-    </style>
+    <div id="toast" class="toast"></div>
 
     <script>
         let currentLeague = 'nfl';
@@ -754,7 +847,7 @@
             nhl: { primary: '#7c3aed', accent: '#a78bfa' }
         };
 
-        document.querySelectorAll('.league-tab').forEach(tab => {
+        document.querySelectorAll('.league-tab[data-league]').forEach(tab => {
             tab.addEventListener('click', () => {
                 document.querySelector('.league-tab.active').classList.remove('active');
                 tab.classList.add('active');
@@ -777,6 +870,7 @@
         async function loadData() {
             showLoading(true);
             clearError();
+            showToast('Refreshing data...');
 
             try {
                 await Promise.all([
@@ -785,8 +879,9 @@
                     loadInjuries(),
                     loadTalkingPoints()
                 ]);
+                showToast('Data updated!');
             } catch (error) {
-                showError('Failed to load data. Make sure the API server is running and data has been fetched.');
+                showError('Failed to load data. Make sure the API server is running.');
             }
 
             showLoading(false);
@@ -857,7 +952,7 @@
         }
 
         async function loadTalkingPoints() {
-            const data = await fetchData(`/chat/talking-points`);
+            const data = await fetchData('/chat/talking-points');
             const container = document.getElementById('talking-points-container');
             
             if (!data.talking_points || data.talking_points.length === 0) {
@@ -893,9 +988,14 @@
             document.getElementById('error-container').innerHTML = '';
         }
 
-        loadData();
-
-        setInterval(loadData, 60000);
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 2000);
+        }
 
         async function showQuickStats() {
             const data = await fetchData(`/api/quick-stats/${currentLeague}`);
@@ -1036,6 +1136,33 @@
             document.getElementById('modal').style.display = 'block';
         }
 
+        async function showTalkingPoints() {
+            const data = await fetchData('/chat/talking-points');
+            const modalBody = document.getElementById('modal-body');
+            
+            let html = `<h2 style="color: var(--primary); margin-bottom: 20px;">💬 Conversation Starters</h2>`;
+            html += `<p style="color: var(--text-secondary); margin-bottom: 20px;">Use these to sound like a die-hard fan!</p>`;
+            
+            if (data.talking_points && data.talking_points.length > 0) {
+                data.talking_points.forEach(point => {
+                    html += `
+                        <div style="background: var(--bg-hover); padding: 15px; border-radius: 10px; margin-bottom: 12px;">
+                            <span class="talking-league ${point.league.toLowerCase()}" style="margin-bottom: 8px; display: inline-block;">${point.league}</span>
+                            <div style="font-weight: 600; margin-bottom: 8px;">${point.topic}</div>
+                            <div style="background: rgba(99, 102, 241, 0.15); padding: 12px; border-radius: 8px; font-size: 15px;">
+                                💬 ${point.say_this}
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                html += `<p>No talking points available. Run the pipeline first!</p>`;
+            }
+            
+            modalBody.innerHTML = html;
+            document.getElementById('modal').style.display = 'block';
+        }
+
         function getLeagueEmoji(league) {
             const emojis = { 'NFL': '🏈', 'NBA': '🏀', 'MLB': '⚾', 'NHL': '🏒' };
             return emojis[league] || '🏆';
@@ -1051,6 +1178,10 @@
                 modal.style.display = 'none';
             }
         }
+
+        loadData();
+
+        setInterval(loadData, 60000);
     </script>
 </body>
 </html>
