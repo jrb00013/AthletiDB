@@ -567,7 +567,7 @@ async def get_player(player_name: str):
     """Search for a player"""
     try:
         from pipeline.db import get_engine
-        eng = get_db_engine()
+        eng = get_engine()
         
         from sqlalchemy import text
         result = eng.connect().execute(text("""
@@ -587,6 +587,36 @@ async def get_player(player_name: str):
         }
     except Exception as e:
         return {"message": "Player search unavailable", "players": [], "error": str(e)}
+
+@app.get("/api/search")
+async def search_all(q: str = Query(..., min_length=1)):
+    """Search across all data types"""
+    try:
+        eng = get_db_engine()
+        results = {
+            "query": q,
+            "teams": [],
+            "players": [],
+            "upsets": []
+        }
+        
+        from sqlalchemy import text
+        
+        teams = eng.connect().execute(text("""
+            SELECT team, league FROM team_records 
+            WHERE team LIKE :q LIMIT 5
+        """), {"q": f"%{q}%"})
+        results["teams"] = [dict(row._mapping) for row in teams]
+        
+        upsets = eng.connect().execute(text("""
+            SELECT winner, loser, league, game_date FROM upsets 
+            WHERE winner LIKE :q OR loser LIKE :q LIMIT 5
+        """), {"q": f"%{q}%"})
+        results["upsets"] = [dict(row._mapping) for row in upsets]
+        
+        return results
+    except Exception as e:
+        return {"query": q, "error": str(e), "teams": [], "players": [], "upsets": []}
 
 @app.post("/api/refresh")
 async def refresh_data(league: Optional[str] = None):
