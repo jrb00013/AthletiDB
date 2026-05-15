@@ -1,0 +1,6 @@
+# Web Server Requirements
+# Install with: pip install -r web/requirements.txt
+
+fastapi>=0.100.0
+uvicorn>=0.23.0
+jinja2>=3.1.0
