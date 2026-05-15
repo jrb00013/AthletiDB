@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AthletiDB - Sports Conversation Companion</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --danger: #ef4444;
+            --nfl-red: #1e3a8a;
+            --nba-orange: #ea580c;
+            --mlb-blue: #0ea5e9;
+            --nhl-purple: #7c3aed;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-hover: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: #334155;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .logo h1 {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .logo span {
+            font-weight: 300;
+            opacity: 0.8;
+        }
+
+        .league-tabs {
+            display: flex;
+            gap: 8px;
+        }
+
+        .league-tab {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .league-tab:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .league-tab.active {
+            background: white;
+            color: var(--primary);
+        }
+
+        .league-tab.nfl { border-bottom: 3px solid var(--nfl-red); }
+        .league-tab.nba { border-bottom: 3px solid var(--nba-orange); }
+        .league-tab.mlb { border-bottom: 3px solid var(--mlb-blue); }
+        .league-tab.nhl { border-bottom: 3px solid var(--nhl-purple); }
+
+        .hero {
+            padding: 40px 0;
+            text-align: center;
+            background: linear-gradient(180deg, rgba(99, 102, 241, 0.1) 0%, transparent 100%);
+        }
+
+        .hero h2 {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            background: linear-gradient(90deg, #fff 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 20px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 24px;
+            padding: 40px 0;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+            border-color: var(--primary);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .card-icon.standings { background: linear-gradient(135deg, var(--secondary), #059669); }
+        .card-icon.upsets { background: linear-gradient(135deg, var(--accent), #d97706); }
+        .card-icon.injuries { background: linear-gradient(135deg, var(--danger), #dc2626); }
+        .card-icon.talking { background: linear-gradient(135deg, var(--primary), #4338ca); }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .rank {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 12px;
+        }
+
+        .rank.top-3 { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; }
+        .rank.other { background: var(--bg-hover); color: var(--text-secondary); }
+
+        .team-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .record {
+            font-family: 'Space Mono', monospace;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .win-pct {
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .streak {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .streak.winning { background: rgba(16, 185, 129, 0.2); color: var(--secondary); }
+        .streak.losing { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+
+        .upset-item {
+            background: var(--bg-hover);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .upset-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .upset-date {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .upset-teams {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .upset-teams .winner { color: var(--secondary); }
+        .upset-teams .loser { color: var(--text-secondary); }
+
+        .upset-score {
+            font-family: 'Space Mono', monospace;
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .say-this {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(79, 70, 229, 0.1));
+            border-left: 3px solid var(--primary);
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            font-size: 14px;
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .say-this::before {
+            content: "💬 Say this: ";
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .injury-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: var(--bg-hover);
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+
+        .injury-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .injury-emoji {
+            font-size: 32px;
+            width: 50px;
+            text-align: center;
+        }
+
+        .injury-info {
+            flex: 1;
+        }
+
+        .injury-player {
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .injury-details {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .injury-impact {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .injury-impact.critical { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        .injury-impact.warning { background: rgba(245, 158, 11, 0.2); color: var(--accent); }
+        .injury-impact.moderate { background: rgba(148, 163, 184, 0.2); color: var(--text-secondary); }
+
+        .talking-point {
+            display: flex;
+            gap: 16px;
+            padding: 16px;
+            background: var(--bg-hover);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            align-items: flex-start;
+        }
+
+        .talking-point:last-child {
+            margin-bottom: 0;
+        }
+
+        .talking-league {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .talking-league.nfl { background: rgba(30, 58, 138, 0.5); color: #60a5fa; }
+        .talking-league.nba { background: rgba(234, 88, 12, 0.5); color: #fb923c; }
+        .talking-league.mlb { background: rgba(14, 165, 233, 0.5); color: #38bdf8; }
+        .talking-league.nhl { background: rgba(124, 58, 237, 0.5); color: #a78bfa; }
+
+        .talking-content {
+            flex: 1;
+        }
+
+        .talking-topic {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .talking-say {
+            font-size: 14px;
+            color: var(--text-primary);
+            padding: 12px;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 8px;
+        }
+
+        .talking-say::before {
+            content: "💬 ";
+        }
+
+        .section-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .section-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        @media (max-width: 768px) {
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .summary-stat {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .summary-stat-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--primary);
+            font-family: 'Space Mono', monospace;
+        }
+
+        .summary-stat-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .conversation-box {
+            background: linear-gradient(135deg, var(--primary-dark), #3730a3);
+            border-radius: 16px;
+            padding: 24px;
+            margin: 32px 0;
+        }
+
+        .conversation-box h3 {
+            font-size: 20px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .conversation-starters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+        }
+
+        .conversation-starter {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .conversation-starter-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 8px;
+        }
+
+        .conversation-starter-text {
+            font-size: 15px;
+            color: white;
+            line-height: 1.5;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--danger);
+            border-radius: 12px;
+            padding: 20px;
+            color: var(--danger);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        footer {
+            background: var(--bg-card);
+            padding: 40px 0;
+            margin-top: 40px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        .refresh-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .refresh-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .hero h2 {
+                font-size: 32px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">🏆</div>
+                    <h1>Athleti<span>DB</span></h1>
+                </div>
+                <div class="league-tabs">
+                    <button class="league-tab nfl active" data-league="nfl">NFL</button>
+                    <button class="league-tab nba" data-league="nba">NBA</button>
+                    <button class="league-tab mlb" data-league="mlb">MLB</button>
+                    <button class="league-tab nhl" data-league="nhl">NHL</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h2>Sports Made Simple</h2>
+            <p>Your conversation companion. Never be stumped by sports talk again.</p>
+        </div>
+    </section>
+
+    <main class="container">
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+        </div>
+
+        <div id="error-container"></div>
+
+        <div id="content">
+            <div id="summary-section"></div>
+            
+            <div class="grid">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <div class="card-icon standings">📊</div>
+                            Standings
+                        </div>
+                    </div>
+                    <div id="standings-container">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Team</th>
+                                        <th>Record</th>
+                                        <th>%</th>
+                                        <th>Streak</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="standings-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <div class="card-icon upsets">⚡</div>
+                            Recent Upsets
+                        </div>
+                    </div>
+                    <div id="upsets-container"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <div class="card-icon injuries">🏥</div>
+                            Active Injuries
+                        </div>
+                    </div>
+                    <div id="injuries-container"></div>
+                </div>
+
+                <div class="card" style="grid-column: 1 / -1;">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <div class="card-icon talking">💬</div>
+                            Today's Talking Points
+                        </div>
+                    </div>
+                    <div id="talking-points-container"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>🏆 AthletiDB - Making sports accessible for everyone</p>
+            <p style="margin-top: 8px; font-size: 13px;">Run <code>python main.py --league [nfl|nba|mlb|nhl] --include-upsets --include-injuries</code> to update data</p>
+        </div>
+    </footer>
+
+    <script>
+        let currentLeague = 'nfl';
+        const API_BASE = '/api';
+
+        const leagueColors = {
+            nfl: { primary: '#1e3a8a', accent: '#60a5fa' },
+            nba: { primary: '#ea580c', accent: '#fb923c' },
+            mlb: { primary: '#0ea5e9', accent: '#38bdf8' },
+            nhl: { primary: '#7c3aed', accent: '#a78bfa' }
+        };
+
+        document.querySelectorAll('.league-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelector('.league-tab.active').classList.remove('active');
+                tab.classList.add('active');
+                currentLeague = tab.dataset.league;
+                loadData();
+            });
+        });
+
+        async function fetchData(endpoint) {
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                console.error(`Error fetching ${endpoint}:`, error);
+                throw error;
+            }
+        }
+
+        async function loadData() {
+            showLoading(true);
+            clearError();
+
+            try {
+                await Promise.all([
+                    loadStandings(),
+                    loadUpsets(),
+                    loadInjuries(),
+                    loadTalkingPoints()
+                ]);
+            } catch (error) {
+                showError('Failed to load data. Make sure the API server is running and data has been fetched.');
+            }
+
+            showLoading(false);
+        }
+
+        async function loadStandings() {
+            const data = await fetchData(`/league/${currentLeague}/standings`);
+            const tbody = document.getElementById('standings-body');
+            
+            if (!data.standings || data.standings.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="empty-state">No standings data yet.<br><small>Run the pipeline to fetch data!</small></td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = data.standings.map(team => `
+                <tr>
+                    <td><span class="rank ${team.rank <= 3 ? 'top-3' : 'other'}">${team.rank}</span></td>
+                    <td class="team-name">${team.team}</td>
+                    <td class="record">${team.record}</td>
+                    <td class="win-pct">${team.win_pct}</td>
+                    <td><span class="streak ${team.streak.startsWith('W') ? 'winning' : 'losing'}">${team.streak}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        async function loadUpsets() {
+            const data = await fetchData(`/league/${currentLeague}/upsets?limit=5`);
+            const container = document.getElementById('upsets-container');
+            
+            if (!data.upsets || data.upsets.length === 0) {
+                container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🎉</div><p>No upsets recorded yet!</p></div>`;
+                return;
+            }
+
+            container.innerHTML = data.upsets.map(upset => `
+                <div class="upset-item">
+                    <div class="upset-date">${upset.date}</div>
+                    <div class="upset-teams">
+                        <span class="winner">${upset.winner}</span> def. <span class="loser">${upset.loser}</span>
+                    </div>
+                    <div class="upset-score">Final: ${upset.score}</div>
+                    <div class="say-this">${upset.say_this}</div>
+                </div>
+            `).join('');
+        }
+
+        async function loadInjuries() {
+            const data = await fetchData(`/league/${currentLeague}/injuries`);
+            const container = document.getElementById('injuries-container');
+            
+            if (!data.injuries || data.injuries.length === 0) {
+                container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">✅</div><p>No significant injuries right now!</p></div>`;
+                return;
+            }
+
+            container.innerHTML = data.injuries.slice(0, 5).map(inj => `
+                <div class="injury-item">
+                    <div class="injury-emoji">${inj.emoji}</div>
+                    <div class="injury-info">
+                        <div class="injury-player">${inj.player} <span style="color: var(--text-muted); font-weight: 400;">(${inj.position})</span></div>
+                        <div class="injury-details">${inj.team} - ${inj.injury}${inj.body_part ? ` (${inj.body_part})` : ''}</div>
+                    </div>
+                    <div class="injury-impact ${inj.severity === 'out' || inj.severity === 'ir' ? 'critical' : inj.severity === 'doubtful' ? 'warning' : 'moderate'}">
+                        ${inj.status}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function loadTalkingPoints() {
+            const data = await fetchData(`/chat/talking-points`);
+            const container = document.getElementById('talking-points-container');
+            
+            if (!data.talking_points || data.talking_points.length === 0) {
+                container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">💤</div><p>No talking points available. Run the pipeline to generate them!</p></div>`;
+                return;
+            }
+
+            container.innerHTML = data.talking_points.map(point => `
+                <div class="talking-point">
+                    <span class="talking-league ${point.league.toLowerCase()}">${point.league}</span>
+                    <div class="talking-content">
+                        <div class="talking-topic">${point.topic}</div>
+                        <div class="talking-say">${point.say_this}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'flex' : 'none';
+            document.getElementById('content').style.opacity = show ? '0.5' : '1';
+        }
+
+        function showError(message) {
+            document.getElementById('error-container').innerHTML = `
+                <div class="error" style="margin: 20px 0;">
+                    <strong>⚠️ Error:</strong> ${message}
+                </div>
+            `;
+        }
+
+        function clearError() {
+            document.getElementById('error-container').innerHTML = '';
+        }
+
+        loadData();
+
+        setInterval(loadData, 60000);
+    </script>
+</body>
+</html>
