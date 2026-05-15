@@ -1,0 +1,22 @@
+server:
+  host: "0.0.0.0"
+  port: 8000
+  reload: false
+  log_level: "info"
+
+cors:
+  allow_origins: ["*"]
+  allow_credentials: true
+
+static:
+  enabled: true
+  directory: "web"
+
+api:
+  title: "AthletiDB API"
+  description: "Your Sports Conversation Companion"
+  version: "1.0.0"
+
+database:
+  default: "sqlite:///sports_data.db"
+  fallback: "sqlite:///data/sports_data.db"
