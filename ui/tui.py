@@ -294,6 +294,10 @@ def show_help_panel():
 - `python -m ui.tui talking-points` - Conversation starters
 - `python -m ui.tui summary --league nfl` - Full summary
 - `python -m ui.tui results --league nfl` - Game results
+- `python -m ui.tui players --league nfl` - Top players
+- `python -m ui.tui team-info nfl "Team"` - Team details
+- `python -m ui.tui all-leagues` - Overview all leagues
+- `python -m ui.tui welcome` - Show welcome message
 
 ## League Options
 - `--league nfl` (default) - NFL
@@ -307,6 +311,15 @@ python main.py --league nfl --include-upsets --include-injuries
 python main.py --league nba --include-upsets --include-injuries
 python main.py --league mlb --include-upsets --include-injuries
 python main.py --league nhl --include-upsets --include-injuries
+
+# Or for all leagues:
+python main.py --include-upsets --include-injuries
+```
+
+## Web UI
+```bash
+python web/main.py
+# Then open http://localhost:8000
 ```
 """
     console.print(Panel(
