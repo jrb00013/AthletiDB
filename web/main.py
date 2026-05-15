@@ -598,6 +598,127 @@ async def refresh_data(league: Optional[str] = None):
         "note": "This would trigger the pipeline in production"
     }
 
+@app.get("/api/streaks/{league}")
+async def get_team_streaks(league: str):
+    """Get teams on winning and losing streaks"""
+    try:
+        eng = get_db_engine()
+        records = get_team_records(eng, league)
+        
+        if not records:
+            return {"league": league.upper(), "message": "No data yet", "winning_streak": [], "losing_streak": []}
+        
+        winning = records[:3]
+        losing = records[-3:][::-1]
+        
+        return {
+            "league": league.upper(),
+            "winning_streak": [
+                {
+                    "team": t.get('team'),
+                    "record": f"{t.get('wins', 0)}-{t.get('losses', 0)}",
+                    "say_this": f"{t.get('team')} is on fire right now! They've won {t.get('wins', 0)} games!"
+                }
+                for t in winning
+            ],
+            "losing_streak": [
+                {
+                    "team": t.get('team'),
+                    "record": f"{t.get('wins', 0)}-{t.get('losses', 0)}",
+                    "say_this": f"It's tough to watch {t.get('team')} this season, they've lost {t.get('losses', 0)} games already."
+                }
+                for t in losing
+            ]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/around-the-horn")
+async def get_around_the_horn():
+    """Get sports news from all leagues formatted for conversation"""
+    try:
+        eng = get_db_engine()
+        news_items = []
+        
+        for lg in ['nfl', 'nba', 'mlb', 'nhl']:
+            upsets = get_recent_upsets(eng, lg, 2)
+            for u in upsets:
+                news_items.append({
+                    "type": "upset",
+                    "league": lg.upper(),
+                    "headline": f"{u.get('winner')} pulls off upset vs {u.get('loser')}",
+                    "script": f"Did you see that? {u.get('winner')} absolutely stunned {u.get('loser')}! That's a huge upset!",
+                    "score": f"{u.get('home_score')}-{u.get('away_score')}"
+                })
+            
+            injuries = get_active_injuries(eng, lg, None)
+            for inj in injuries[:1]:
+                if inj.get('status') in ['out', 'ir']:
+                    news_items.append({
+                        "type": "injury",
+                        "league": lg.upper(),
+                        "headline": f"{inj.get('full_name')} out for {inj.get('team')}",
+                        "script": f"Breaking news: {inj.get('full_name')} is done for the season. That's a massive blow to {inj.get('team')}!",
+                        "details": f"{inj.get('injury_type')} - {inj.get('status')}"
+                    })
+        
+        return {
+            "news": news_items[:15],
+            "title": "📰 Around the Horn - Sports News You Can Use",
+            "tip": "Lead with the most surprising news to sound like you watch every game!"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/league/{league}/headlines")
+async def get_headlines(league: str):
+    """Get formatted headlines for a league"""
+    try:
+        eng = get_db_engine()
+        
+        upsets = get_recent_upsets(eng, league, 3)
+        injuries = get_active_injuries(eng, league)
+        records = get_team_records(eng, league)
+        
+        headlines = []
+        
+        if upsets:
+            top_upset = upsets[0]
+            headlines.append({
+                "priority": "high",
+                "category": "upset",
+                "headline": f"⚡ {top_upset.get('winner')} upset {top_upset.get('loser')}!",
+                "script": f"🎯 Use this: 'Did you see {top_upset.get('winner')} upset {top_upset.get('loser')}? Nobody expected that!'"
+            })
+        
+        if injuries:
+            critical = [i for i in injuries if i.get('status') in ['out', 'ir']]
+            if critical:
+                i = critical[0]
+                headlines.append({
+                    "priority": "high",
+                    "category": "injury",
+                    "headline": f"🏥 {i.get('full_name')} ({i.get('status')})",
+                    "script": f"🎯 Use this: 'Man, {i.get('full_name')} being {i.get('status')} is a huge loss for {i.get('team')}!'"
+                })
+        
+        if records:
+            top = records[0]
+            headlines.append({
+                "priority": "medium",
+                "category": "standings",
+                "headline": f"🏆 {top.get('team')} leads the {league.upper()}",
+                "script": f"🎯 Use this: '{top.get('team')} is absolutely dominating right now. They're {top.get('wins', 0)}-{top.get('losses', 0)}!'"
+            })
+        
+        return {
+            "league": league.upper(),
+            "headlines": headlines,
+            "tip": "Pick the highest priority headline to start your conversation!"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 8000))
