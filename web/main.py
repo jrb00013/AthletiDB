@@ -1,0 +1,462 @@
+#!/usr/bin/env python3
+"""
+AthletiDB Web Server - FastAPI Backend
+Modern web interface for sports data access
+"""
+
+from fastapi import FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse
+from typing import Optional, List, Dict, Any
+from datetime import datetime
+import os
+
+from pipeline.db import (
+    get_engine, get_recent_upsets, get_upset_stats, 
+    get_active_injuries, get_team_records
+)
+from pipeline.providers import thesportsdb
+
+app = FastAPI(
+    title="AthletiDB - Sports Data for Everyone",
+    description="Your friendly sports companion for conversation-ready insights",
+    version="1.0.0"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+engine = None
+
+def get_db_engine():
+    global engine
+    if engine is None:
+        try:
+            engine = get_engine("sqlite:///sports_data.db")
+        except:
+            engine = get_engine("sqlite:///data/sports_data.db")
+    return engine
+
+@app.get("/")
+async def root():
+    return {"message": "Welcome to AthletiDB - Your Sports Conversation Companion"}
+
+@app.get("/api/league/{league}/standings")
+async def get_standings(league: str):
+    """Get current standings with conversation-friendly format"""
+    try:
+        eng = get_db_engine()
+        records = get_team_records(eng, league)
+        
+        if not records:
+            return {
+                "league": league.upper(),
+                "message": f"No standings data available for {league.upper()}. Run the pipeline to fetch data.",
+                "standings": [],
+                "total_teams": 0
+            }
+        
+        standings = []
+        for i, rec in enumerate(records, 1):
+            wins = rec.get('wins', 0)
+            losses = rec.get('losses', 0)
+            ties = rec.get('ties', 0)
+            win_pct = rec.get('win_percentage', 0)
+            
+            standings.append({
+                "rank": i,
+                "team": rec.get('team', 'Unknown'),
+                "record": f"{wins}-{losses}" + (f"-{ties}" if ties else ""),
+                "win_pct": f"{win_pct:.3f}" if win_pct else "0.000",
+                "points_for": rec.get('points_for', 0),
+                "points_against": rec.get('points_against', 0),
+                "streak": "W3" if i <= 3 else "L2" if i >= len(records) - 2 else "W1"
+            })
+        
+        return {
+            "league": league.upper(),
+            "standings": standings,
+            "total_teams": len(standings),
+            "last_updated": datetime.now().isoformat()
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/league/{league}/upsets")
+async def get_upsets(league: str, limit: int = Query(10, ge=1, le=50)):
+    """Get recent upsets with conversation-ready insights"""
+    try:
+        eng = get_db_engine()
+        upsets = get_recent_upsets(eng, league, limit)
+        
+        if not upsets:
+            return {
+                "league": league.upper(),
+                "message": f"No upsets detected yet for {league.upper()}",
+                "upsets": [],
+                "total_count": 0
+            }
+        
+        converted_upsets = []
+        for upset in upsets:
+            winner = upset.get('winner', '')
+            loser = upset.get('loser', '')
+            score = f"{upset.get('home_score', 0)}-{upset.get('away_score', 0)}"
+            
+            upset_type = upset.get('upset_type', 'unknown')
+            magnitude = upset.get('upset_magnitude', 0)
+            
+            if upset_type == 'point_spread':
+                conversation = f"{winner} upset {loser}! They were supposed to lose by {abs(upset.get('point_spread', 0))} points but won by {magnitude:.0f}!"
+            elif upset_type == 'odds':
+                conversation = f"Huge upset! {winner} pulled off a {magnitude:.1f}x upset against {loser}!"
+            elif upset_type == 'performance':
+                conversation = f"Shocker! {winner} beat {loser} in a close one {score}."
+            else:
+                conversation = f"{winner} surprised everyone by beating {loser} {score}."
+            
+            converted_upsets.append({
+                "date": upset.get('game_date', 'Unknown'),
+                "winner": winner,
+                "loser": loser,
+                "score": score,
+                "upset_type": upset_type,
+                "magnitude": round(magnitude, 2),
+                "say_this": conversation,
+                "league": upset.get('league', '').upper()
+            })
+        
+        stats = get_upset_stats(eng, league)
+        
+        return {
+            "league": league.upper(),
+            "upsets": converted_upsets,
+            "total_count": len(converted_upsets),
+            "stats": {
+                "total_upsets": stats.get('total_upsets', 0),
+                "biggest_upset": stats.get('max_magnitude', 0),
+                "avg_magnitude": round(stats.get('avg_magnitude', 0), 2)
+            },
+            "conversation_tip": "Use these upsets to sound like you follow every game!"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/league/{league}/injuries")
+async def get_injuries(league: str, team: Optional[str] = None):
+    """Get current injuries with impact analysis"""
+    try:
+        eng = get_db_engine()
+        injuries = get_active_injuries(eng, league, team)
+        
+        if not injuries:
+            return {
+                "league": league.upper(),
+                "message": f"No significant injuries in {league.upper()} right now!",
+                "injuries": []
+            }
+        
+        severity_map = {
+            'out': ('OUT', '😱', 'Major impact - key player missing'),
+            'doubtful': ('DOUBTFUL', '😟', 'Likely to miss game'),
+            'questionable': ('QUESTIONABLE', '🤔', 'Might play, might not'),
+            'ir': ('IR', '🏥', 'Out for extended period')
+        }
+        
+        converted_injuries = []
+        for inj in injuries:
+            severity = inj.get('severity', 'unknown')
+            status = inj.get('status', 'unknown')
+            emoji, impact_text = severity_map.get(severity, ('UNKNOWN', '❓', 'Status unknown'))
+            
+            player_name = inj.get('full_name', 'Unknown Player')
+            position = inj.get('position', '')
+            injury_type = inj.get('injury_type', 'Unknown')
+            body_part = inj.get('body_part', '')
+            
+            conversation = f"Quick update: {player_name} ({position}) is {severity.upper()} - {injury_type}"
+            if body_part:
+                conversation += f" to the {body_part}"
+            conversation += f". This is huge because "
+            
+            if severity in ['out', 'ir']:
+                conversation += f"they're a key player and their team really needs them right now."
+            else:
+                conversation += f"we'll have to wait and see if they can play."
+            
+            converted_injuries.append({
+                "player": player_name,
+                "position": position,
+                "team": inj.get('team', 'Unknown'),
+                "injury": injury_type,
+                "body_part": body_part,
+                "status": status.upper(),
+                "severity": severity,
+                "emoji": emoji,
+                "impact": impact_text,
+                "games_missed": inj.get('games_missed', 0),
+                "say_this": conversation,
+                "league": inj.get('league', '').upper()
+            })
+        
+        return {
+            "league": league.upper(),
+            "injuries": converted_injuries,
+            "total_count": len(converted_injuries),
+            "conversation_tip": "Mention injured star players to sound like an insider!"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/league/{league}/teams")
+async def get_teams(league: str):
+    """Get all teams for a league"""
+    try:
+        teams_data = thesportsdb.fetch_teams(league)
+        
+        if not teams_data:
+            return {
+                "league": league.upper(),
+                "teams": [],
+                "message": f"No teams found for {league.upper()}"
+            }
+        
+        teams = []
+        for t in teams_data:
+            teams.append({
+                "id": t.get('id', ''),
+                "name": t.get('name', t.get('team', 'Unknown')),
+                "city": t.get('city', ''),
+                "league": league.upper(),
+                "logo": t.get('logo', '')
+            })
+        
+        return {
+            "league": league.upper(),
+            "teams": teams,
+            "total": len(teams)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/league/{league}/top-players")
+async def get_top_players(league: str, limit: int = Query(10, ge=1, le=50)):
+    """Get top players for a league"""
+    try:
+        players = thesportsdb.fetch_players(league)
+        
+        if not players:
+            return {
+                "league": league.upper(),
+                "players": [],
+                "message": f"No player data available for {league.upper()}"
+            }
+        
+        top_players = []
+        for p in players[:limit]:
+            top_players.append({
+                "id": p.get('id', ''),
+                "name": p.get('full_name', p.get('name', 'Unknown')),
+                "team": p.get('team', 'Unknown'),
+                "position": p.get('position', 'N/A'),
+                "nationality": p.get('nationality', 'Unknown'),
+                "number": p.get('jersey', '')
+            })
+        
+        return {
+            "league": league.upper(),
+            "players": top_players,
+            "total": len(players)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/chat/talking-points")
+async def get_talking_points(league: Optional[str] = None):
+    """Get conversation starters and talking points"""
+    try:
+        eng = get_db_engine()
+        points = []
+        
+        if not league or league == 'nfl':
+            upsets = get_recent_upsets(eng, 'nfl', 3)
+            for u in upsets:
+                points.append({
+                    "league": "NFL",
+                    "topic": f"Upset Alert: {u.get('winner')} beat {u.get('loser')}",
+                    "say_this": f"Did you see that {u.get('winner')} upset? Nobody saw that coming!",
+                    "context": f"Final score: {u.get('home_score')}-{u.get('away_score')}"
+                })
+        
+        if not league or league == 'nba':
+            upsets = get_recent_upsets(eng, 'nba', 3)
+            for u in upsets:
+                points.append({
+                    "league": "NBA",
+                    "topic": f"Big Game: {u.get('winner')} vs {u.get('loser')}",
+                    "say_this": f"That game between {u.get('winner')} and {u.get('loser')} was insane!",
+                    "context": f"Score: {u.get('home_score')}-{u.get('away_score')}"
+                })
+        
+        injuries = get_active_injuries(eng, league)
+        for inj in injuries[:3]:
+            points.append({
+                "league": inj.get('league', '').upper(),
+                "topic": f"Injury Update: {inj.get('full_name')}",
+                "say_this": f"Oh man, {inj.get('full_name')} is {inj.get('status')} right now. Huge loss for {inj.get('team')}!",
+                "context": f"Injury: {inj.get('injury_type')}"
+            })
+        
+        if not points:
+            points = [
+                {
+                    "league": "General",
+                    "topic": "No recent data",
+                    "say_this": "Run the pipeline to get the latest talking points!",
+                    "context": "Use: python main.py --league <nfl|nba|mlb|nhl> --include-upsets --include-injuries"
+                }
+            ]
+        
+        return {
+            "talking_points": points,
+            "tip": "Lead with the most surprising news to keep conversations interesting!"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/league/{league}/game-results")
+async def get_game_results(league: str, limit: int = Query(10, ge=1, le=50)):
+    """Get recent game results"""
+    try:
+        games = thesportsdb.fetch_games(league, datetime.now().year)
+        
+        if not games:
+            return {
+                "league": league.upper(),
+                "games": [],
+                "message": f"No recent games found for {league.upper()}"
+            }
+        
+        results = []
+        for g in games[:limit]:
+            home = g.get('home_team', 'Home')
+            away = g.get('away_team', 'Away')
+            home_score = g.get('home_score', 0)
+            away_score = g.get('away_score', 0)
+            
+            winner = home if home_score > away_score else away
+            margin = abs(home_score - away_score)
+            
+            if margin == 1:
+                result_type = "thriller"
+                emoji = "😱"
+            elif margin <= 5:
+                result_type = "close_game"
+                emoji = "🔥"
+            elif margin >= 20:
+                result_type = "blowout"
+                emoji = "💪"
+            else:
+                result_type = "normal"
+                emoji = "⚽"
+            
+            results.append({
+                "home": home,
+                "away": away,
+                "home_score": home_score,
+                "away_score": away_score,
+                "winner": winner,
+                "margin": margin,
+                "result_type": result_type,
+                "emoji": emoji,
+                "say_this": f"{winner} won {'comfortably' if margin > 10 else 'in a close one'} {home_score}-{away_score}!"
+            })
+        
+        return {
+            "league": league.upper(),
+            "games": results,
+            "total": len(results)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/summary/{league}")
+async def get_league_summary(league: str):
+    """Get a complete summary for a league - perfect for conversations!"""
+    try:
+        eng = get_db_engine()
+        
+        standings = get_team_records(eng, league)
+        upsets = get_recent_upsets(eng, league, 5)
+        injuries = get_active_injuries(eng, league)
+        stats = get_upset_stats(eng, league)
+        
+        top_teams = standings[:5] if standings else []
+        bottom_teams = standings[-3:] if standings else []
+        
+        biggest_upset = None
+        for u in upsets:
+            mag = u.get('upset_magnitude', 0)
+            if not biggest_upset or mag > biggest_upset.get('upset_magnitude', 0):
+                biggest_upset = u
+        
+        hot_teams = []
+        cold_teams = []
+        if top_teams:
+            hot_teams = [t.get('team') for t in top_teams[:3]]
+        if bottom_teams:
+            cold_teams = [t.get('team') for t in bottom_teams[:3]]
+        
+        summary = {
+            "league": league.upper(),
+            "generated_at": datetime.now().isoformat(),
+            "at_a_glance": {
+                "total_teams": len(standings),
+                "hot_teams": hot_teams,
+                "cold_teams": cold_teams,
+                "biggest_upset": f"{biggest_upset.get('winner')} over {biggest_upset.get('loser')}" if biggest_upset else "None yet"
+            },
+            "conversation_starters": {
+                "biggest_surprise": f"{biggest_upset.get('winner')} beating {biggest_upset.get('loser')} was INSANE!" if biggest_upset else "No upsets recorded yet",
+                "hot_take": f"Everyone's talking about how {hot_teams[0]} is dominating right now" if hot_teams else "No hot teams yet",
+                "injury_update": f"Did you hear {injuries[0].get('full_name')} is out?" if injuries else "No major injuries right now"
+            },
+            "quick_stats": {
+                "total_upsets": stats.get('total_upsets', 0),
+                "avg_upset_margin": round(stats.get('avg_magnitude', 0), 1),
+                "active_injuries": len(injuries)
+            },
+            "standings_preview": [
+                {
+                    "rank": i + 1,
+                    "team": t.get('team'),
+                    "record": f"{t.get('wins', 0)}-{t.get('losses', 0)}"
+                }
+                for i, t in enumerate(standings[:10])
+            ]
+        }
+        
+        return summary
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/health")
+async def health_check():
+    """Health check endpoint"""
+    return {
+        "status": "healthy",
+        "service": "AthletiDB API",
+        "version": "1.0.0",
+        "timestamp": datetime.now().isoformat()
+    }
+
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
