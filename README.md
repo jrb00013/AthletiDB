@@ -2,13 +2,13 @@
 
 ## Quick Start
 
-### 🌐 Web UI
+### Web UI
 ```bash
 python web/main.py
 # Open http://localhost:8000
 ```
 
-### 📱 Terminal UI (TUI)
+### Terminal UI (TUI)
 ```bash
 python -m ui.tui summary --league nfl
 python -m ui.tui standings --league nba
@@ -20,12 +20,12 @@ python -m ui.tui welcome
 python -m ui.tui help
 ```
 
-### 🏃 Quick Start
+### Quick Start
 ```bash
 python quick_start.py
 ```
 
-### 🚀 Shell Commands
+### Shell Commands
 ```bash
 ./run_athletidb.sh web           # Start web UI
 ./run_athletidb.sh tui nfl        # Open TUI
@@ -34,7 +34,7 @@ python quick_start.py
 ./run_athletidb.sh quick          # Quick update
 ```
 
-### 📥 Fetch Data
+### Fetch Data
 ```bash
 python main.py --league nfl --include-upsets --include-injuries
 python main.py --include-upsets --include-injuries
@@ -43,16 +43,16 @@ python main.py --include-upsets --include-injuries
 ## Features
 
 ### Web UI
-- 🏈🏀⚾🏒 League tabs (NFL, NBA, MLB, NHL)
-- 📊 Standings with rankings and streaks
-- ⚡ Upsets with "Say this:" conversation starters  
-- 🏥 Injuries with severity indicators
-- 💬 Talking points for casual conversations
-- 📰 Around the Horn news view
-- 📣 Headlines with priority indicators
-- 🌐 All leagues overview
-- 📊 Quick stats modal
-- 💡 Insights modal
+- League tabs (NFL, NBA, MLB, NHL)
+- Standings with rankings and streaks
+- Upsets with "Say this:" conversation starters
+- Injuries with severity indicators
+- Talking points for casual conversations
+- Around the Horn news view
+- Headlines with priority indicators
+- All leagues overview
+- Quick stats modal
+- Insights modal
 
 ### Terminal UI
 - Rich colored terminal output
